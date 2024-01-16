@@ -12,7 +12,7 @@ sqlc_install:
 migrate_install: # 安装migrate
 	go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v4.15.1
 migrate_init_db: # 初始化数据库
-	migrate create -ext sql -dir src/dao/postgres/migration -seq init_schema
+	migrate create -ext sql -dir src/dao/mysql/migration -seq init_schema
 migrate_up: # 向上迁移数据库
 	migrate -path src/dao/postgres/migration -database "postgresql://root:123456@localhost:5432/chat?sslmode=disable" -verbose up
 migrate_up1: # 向上迁移一级数据库
