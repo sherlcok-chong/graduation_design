@@ -20,3 +20,5 @@ storage/
 config/app/private.yml
 bin/
 test/
+sqlc
+migrate
