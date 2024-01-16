@@ -4,6 +4,7 @@ import (
 	_ "GraduationDesign/docs"
 	"GraduationDesign/src/global"
 	mid "GraduationDesign/src/middleware"
+	"GraduationDesign/src/routing"
 	"github.com/0RAJA/Rutils/pkg/app"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -21,6 +22,8 @@ func NewRouter() *gin.Engine {
 			global.Logger.Info("ping", mid.ErrLogMsg(c)...)
 			rly.Reply(nil, "pang")
 		})
+		rg := routing.Group
+		rg.Email.Init(root)
 	}
 	return r
 }
