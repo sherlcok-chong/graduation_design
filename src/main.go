@@ -14,6 +14,7 @@ import (
 	"GraduationDesign/src/routing/router"
 	"GraduationDesign/src/setting"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 //go:generate go env -w GO111MODULE=on

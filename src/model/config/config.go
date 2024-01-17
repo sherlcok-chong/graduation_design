@@ -18,11 +18,11 @@ type Public struct {
 
 // Private Private配置
 type Private struct {
-	Postgresql Postgresql `yaml:"Postgresql"`
-	Redis      Redis      `yaml:"Redis"`
-	Email      Email      `yaml:"Email"`
-	Token      Token      `yaml:"AccessToken"`
-	AliyunOSS  AliyunOSS  `yaml:"AliyunOSS"`
+	Mysql     Mysql     `yaml:"Mysql"`
+	Redis     Redis     `yaml:"Redis"`
+	Email     Email     `yaml:"Email"`
+	Token     Token     `yaml:"AccessToken"`
+	AliyunOSS AliyunOSS `yaml:"AliyunOSS"`
 }
 
 type Token struct {
@@ -61,7 +61,7 @@ type Redis struct {
 	CacheTime time.Duration `yaml:"CacheTime"`
 }
 
-type Postgresql struct {
+type Mysql struct {
 	DriverName string `yaml:"DriverName"`
 	SourceName string `yaml:"SourceName"`
 }

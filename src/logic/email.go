@@ -1,14 +1,13 @@
 package logic
 
 import (
-	"errors"
-
 	"GraduationDesign/src/dao"
 	"GraduationDesign/src/global"
 	mid "GraduationDesign/src/middleware"
 	"GraduationDesign/src/model/reply"
 	"GraduationDesign/src/myerr"
 	"GraduationDesign/src/pkg/mark"
+	"errors"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
 	"github.com/0RAJA/Rutils/pkg/utils"
 	"github.com/gin-gonic/gin"
@@ -19,12 +18,12 @@ type email struct {
 
 // ExistEmail 是否存在email
 func (email) ExistEmail(c *gin.Context, emailStr string) (*reply.ExistEmail, errcode.Err) {
-	ok, err := dao.Group.Redis.ExistEmail(c, emailStr)
-	if err == nil {
-		return &reply.ExistEmail{Exist: ok}, nil
-	}
-	global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
-	ok, err = dao.Group.DB.ExistEmail(c, emailStr)
+	//ok, err := dao.Group.Redis.ExistEmail(c, emailStr)
+	//if err == nil {
+	//	return &reply.ExistEmail{Exist: ok}, nil
+	//}
+	//global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+	ok, err := dao.Group.Mysql.ExistEmail(c, emailStr)
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return nil, errcode.ErrServer

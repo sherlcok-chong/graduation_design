@@ -1,7 +1,7 @@
 package routing
 
 type group struct {
-	User  user
+	//	User  user
 	Email email
 }
 
