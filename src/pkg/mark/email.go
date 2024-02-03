@@ -44,7 +44,7 @@ func (m *Mark) CheckUserExist(email string) bool {
 // nolint
 func (m *Mark) SendMail(emailStr, code string) error {
 	// TODO:测试
-	return nil
+	//return nil
 	// 发送频率限制
 	if m.CheckUserExist(emailStr) {
 		return ErrSendTooMany
@@ -76,7 +76,7 @@ func (m *Mark) delMark(emailStr string) {
 // nolint
 func (m *Mark) CheckCode(emailStr, code string) bool {
 	// TODO:测试
-	return true
+	//return true
 	myCode, ok := m.codeMark.Load(emailStr)
 	ret := ok && code == myCode
 	// 验证成功删除标记

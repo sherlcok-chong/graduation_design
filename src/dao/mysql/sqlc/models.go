@@ -4,13 +4,50 @@
 
 package db
 
-import ()
+import (
+	"time"
+)
+
+type Commodity struct {
+	ID     int64  `json:"id"`
+	UserID int64  `json:"user_id"`
+	Price  int32  `json:"price"`
+	Texts  string `json:"texts"`
+	IsFree bool   `json:"is_free"`
+	IsLend bool   `json:"is_lend"`
+}
+
+type CommodityMedium struct {
+	ID          int64 `json:"id"`
+	CommodityID int64 `json:"commodity_id"`
+	FileID      int64 `json:"file_id"`
+}
+
+type File struct {
+	ID       int64     `json:"id"`
+	Filename string    `json:"filename"`
+	FileKey  string    `json:"file_key"`
+	Url      string    `json:"url"`
+	Userid   int64     `json:"userid"`
+	CreateAt time.Time `json:"create_at"`
+}
+
+type ProductTag struct {
+	ProductID int64 `json:"product_id"`
+	TagID     int64 `json:"tag_id"`
+}
+
+type Tag struct {
+	TagID   int64  `json:"tag_id"`
+	TagName string `json:"tag_name"`
+}
 
 type User struct {
 	ID       int64  `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Avatar   string `json:"avatar"`
 	Sign     string `json:"sign"`
 	Gender   string `json:"gender"`
 	Birthday string `json:"birthday"`

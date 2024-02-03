@@ -22,7 +22,7 @@ migrate_down: # 向下迁移数据库
 migrate_down1: # 向下迁移一级数据库
 	migrate -path src/dao/postgres/migration -database "postgresql://root:123456@localhost:5432/chat?sslmode=disable" -verbose down 1
 sqlc: # sqlc生成go代码
-	sqlc generate
+	./sqlc generate
 goimports_install: # goimports安装
 	go install golang.org/x/tools/cmd/goimports@latest
 format: # 格式化并检查代码

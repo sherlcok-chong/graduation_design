@@ -9,9 +9,29 @@ import (
 )
 
 type Querier interface {
+	CreateFile(ctx context.Context, arg CreateFileParams) error
+	CreateNewMediaProduct(ctx context.Context, arg CreateNewMediaProductParams) error
+	CreateNewTagProduct(ctx context.Context, arg CreateNewTagProductParams) error
+	CreateProduct(ctx context.Context, arg CreateProductParams) error
+	CreateTag(ctx context.Context, tagName string) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
+	DeleteProduct(ctx context.Context, id int64) error
 	ExistEmail(ctx context.Context, email string) (bool, error)
+	ExistsUserByID(ctx context.Context, id int64) (bool, error)
+	GetFileByID(ctx context.Context, id int64) (string, error)
+	GetLastFileID(ctx context.Context) (int64, error)
+	GetLastProductID(ctx context.Context) (int64, error)
+	GetLastTag(ctx context.Context) (int64, error)
+	GetProductMedia(ctx context.Context, id int64) (string, error)
+	GetProductMediaId(ctx context.Context, commodityID int64) ([]int64, error)
+	GetProductTags(ctx context.Context, productID int64) ([]string, error)
+	GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (string, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByUsername(ctx context.Context, name string) (User, error)
+	GetUserInfoById(ctx context.Context, id int64) (User, error)
+	GetUserLendProduct(ctx context.Context, userID int64) ([]Commodity, error)
+	UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error
+	UpdateUserInfo(ctx context.Context, arg UpdateUserInfoParams) error
 }
 
 var _ Querier = (*Queries)(nil)

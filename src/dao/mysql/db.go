@@ -6,7 +6,6 @@ import (
 	"GraduationDesign/src/global"
 	"context"
 	"database/sql"
-	"fmt"
 )
 
 type DB interface {
@@ -16,8 +15,6 @@ type DB interface {
 
 func Init(driverName, dataSourceName string) DB {
 	conn, err := sql.Open(driverName, dataSourceName)
-	fmt.Println(driverName)
-	fmt.Println(dataSourceName)
 	if err != nil {
 		panic(err)
 	}

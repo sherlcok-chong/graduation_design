@@ -5,9 +5,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/gin-gonic/gin"
 )
 
 type TXer interface {
+	// UpdateUserAvatarTx  更新用户头像
+	UpdateUserAvatarTx(c *gin.Context, fileKey string, fileUrl string, userId int64) error
+	// GetUserLendProductTx 获取用户出租商品
+	GetUserLendProductTx(c *gin.Context, userId int64) ([]Product, error)
 }
 type SqlStore struct {
 	*db.Queries

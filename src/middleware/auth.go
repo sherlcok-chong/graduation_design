@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"GraduationDesign/src/dao"
+	"github.com/0RAJA/Rutils/pkg/app"
 	"net/http"
 	"strings"
 
@@ -68,4 +70,36 @@ func GetTokenContent(c *gin.Context) (*model.Content, bool) {
 		return nil, false
 	}
 	return val.(*model.Content), true
+}
+
+//MustUser 必须是用户
+func MustUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		rly := app.NewResponse(c)
+		val, ok := c.Get(global.PvSettings.Token.AuthorizationKey)
+		if !ok {
+			rly.Reply(myerr.AuthNotExist)
+			c.Abort()
+			return
+		}
+		data := val.(*model.Content)
+		if data.Type != model.UserToken {
+			rly.Reply(myerr.AuthenticationFailed)
+			c.Abort()
+			return
+		}
+		ok, err := dao.Group.Mysql.ExistsUserByID(c, data.ID)
+		if err != nil {
+			global.Logger.Error(err.Error(), ErrLogMsg(c)...)
+			rly.Reply(errcode.ErrServer)
+			c.Abort()
+			return
+		}
+		if !ok {
+			rly.Reply(myerr.UserNotFound)
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
 }

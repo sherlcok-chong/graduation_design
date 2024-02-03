@@ -36,8 +36,42 @@ func (q *Queries) ExistEmail(ctx context.Context, email string) (bool, error) {
 	return exists, err
 }
 
+const existsUserByID = `-- name: ExistsUserByID :one
+select exists(select 1 from user where id = ?)
+`
+
+func (q *Queries) ExistsUserByID(ctx context.Context, id int64) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsUserByID, id)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const getUserByEmail = `-- name: GetUserByEmail :one
+select id, name, email, password, avatar, sign, gender, birthday
+from user
+where email = ?
+limit 1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.Avatar,
+		&i.Sign,
+		&i.Gender,
+		&i.Birthday,
+	)
+	return i, err
+}
+
 const getUserByUsername = `-- name: GetUserByUsername :one
-select id, name, email, password, sign, gender, birthday
+select id, name, email, password, avatar, sign, gender, birthday
 from user
 where name = ?
 limit 1
@@ -51,9 +85,76 @@ func (q *Queries) GetUserByUsername(ctx context.Context, name string) (User, err
 		&i.Name,
 		&i.Email,
 		&i.Password,
+		&i.Avatar,
 		&i.Sign,
 		&i.Gender,
 		&i.Birthday,
 	)
 	return i, err
+}
+
+const getUserInfoById = `-- name: GetUserInfoById :one
+select id, name, email, password, avatar, sign, gender, birthday
+from user
+where id = ?
+`
+
+func (q *Queries) GetUserInfoById(ctx context.Context, id int64) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserInfoById, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Password,
+		&i.Avatar,
+		&i.Sign,
+		&i.Gender,
+		&i.Birthday,
+	)
+	return i, err
+}
+
+const updateUserAvatar = `-- name: UpdateUserAvatar :exec
+update user
+set avatar = ?
+where id = ?
+`
+
+type UpdateUserAvatarParams struct {
+	Avatar string `json:"avatar"`
+	ID     int64  `json:"id"`
+}
+
+func (q *Queries) UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserAvatar, arg.Avatar, arg.ID)
+	return err
+}
+
+const updateUserInfo = `-- name: UpdateUserInfo :exec
+update user
+set name     = ?,
+    sign     = ?,
+    gender   = ?,
+    birthday = ?
+where id = ?
+`
+
+type UpdateUserInfoParams struct {
+	Name     string `json:"name"`
+	Sign     string `json:"sign"`
+	Gender   string `json:"gender"`
+	Birthday string `json:"birthday"`
+	ID       int64  `json:"id"`
+}
+
+func (q *Queries) UpdateUserInfo(ctx context.Context, arg UpdateUserInfoParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserInfo,
+		arg.Name,
+		arg.Sign,
+		arg.Gender,
+		arg.Birthday,
+		arg.ID,
+	)
+	return err
 }

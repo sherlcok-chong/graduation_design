@@ -6,6 +6,8 @@ type group struct {
 	Dao       mDao
 	EmailMark emailMark
 	Worker    worker
+	Maker     maker
+	Oss       oss
 }
 
 var Group = new(group)
@@ -16,4 +18,6 @@ func AllInit() {
 	Group.Dao.Init()
 	Group.EmailMark.Init()
 	Group.Worker.Init()
+	Group.Maker.Init()
+	Group.Oss.Init()
 }

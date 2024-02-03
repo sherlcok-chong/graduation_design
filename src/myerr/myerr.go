@@ -16,5 +16,5 @@ var (
 	AccountNotFound      = errcode.NewErr(2010, "账号不存在")
 	AuthOverTime         = errcode.NewErr(2013, "身份过期")   // token过期
 	UserHasAccount       = errcode.NewErr(3005, "用户存在账户") // 删除用户时用户仍存在账户
-
+	FiledStore           = errcode.NewErr(4001, "文件存储失败")
 )
