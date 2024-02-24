@@ -37,3 +37,6 @@ select exists(select 1 from user where id = ?);
 select *
 from user
 where id = ?;
+
+-- name: GetUserAvatarByID :one
+select avatar from user where id = ?;

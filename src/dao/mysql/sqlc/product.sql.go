@@ -25,16 +25,17 @@ func (q *Queries) CreateNewMediaProduct(ctx context.Context, arg CreateNewMediaP
 }
 
 const createProduct = `-- name: CreateProduct :exec
-insert into commodity (user_id, price, texts, is_free, is_lend)
-values (?, ?, ?, ?, ?)
+insert into commodity (user_id, price, texts, is_free, is_lend, name)
+values (?, ?, ?, ?, ?, ?)
 `
 
 type CreateProductParams struct {
 	UserID int64  `json:"user_id"`
-	Price  int32  `json:"price"`
+	Price  string `json:"price"`
 	Texts  string `json:"texts"`
 	IsFree bool   `json:"is_free"`
 	IsLend bool   `json:"is_lend"`
+	Name   string `json:"name"`
 }
 
 func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) error {
@@ -44,7 +45,19 @@ func (q *Queries) CreateProduct(ctx context.Context, arg CreateProductParams) er
 		arg.Texts,
 		arg.IsFree,
 		arg.IsLend,
+		arg.Name,
 	)
+	return err
+}
+
+const deleteFileMedia = `-- name: DeleteFileMedia :exec
+delete
+from commodity_media
+where commodity_id = ?
+`
+
+func (q *Queries) DeleteFileMedia(ctx context.Context, commodityID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteFileMedia, commodityID)
 	return err
 }
 
@@ -68,6 +81,83 @@ func (q *Queries) GetLastProductID(ctx context.Context) (int64, error) {
 	var last_insert_id int64
 	err := row.Scan(&last_insert_id)
 	return last_insert_id, err
+}
+
+const getProductByID = `-- name: GetProductByID :one
+select id, name, user_id, price, texts, is_free, is_lend
+from commodity
+where id = ?
+`
+
+func (q *Queries) GetProductByID(ctx context.Context, id int64) (Commodity, error) {
+	row := q.db.QueryRowContext(ctx, getProductByID, id)
+	var i Commodity
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.UserID,
+		&i.Price,
+		&i.Texts,
+		&i.IsFree,
+		&i.IsLend,
+	)
+	return i, err
+}
+
+const getProductFirstMedia = `-- name: GetProductFirstMedia :one
+select MIN(file_id)
+from commodity_media
+where commodity_id = ?
+`
+
+func (q *Queries) GetProductFirstMedia(ctx context.Context, commodityID int64) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, getProductFirstMedia, commodityID)
+	var min interface{}
+	err := row.Scan(&min)
+	return min, err
+}
+
+const getProductInfo = `-- name: GetProductInfo :many
+select id, price, name, user_id
+from commodity
+where is_lend = 1
+  and is_free = 1
+limit 10 offset ?
+`
+
+type GetProductInfoRow struct {
+	ID     int64  `json:"id"`
+	Price  string `json:"price"`
+	Name   string `json:"name"`
+	UserID int64  `json:"user_id"`
+}
+
+func (q *Queries) GetProductInfo(ctx context.Context, offset int32) ([]GetProductInfoRow, error) {
+	rows, err := q.db.QueryContext(ctx, getProductInfo, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetProductInfoRow{}
+	for rows.Next() {
+		var i GetProductInfoRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Price,
+			&i.Name,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getProductMedia = `-- name: GetProductMedia :one
@@ -113,7 +203,7 @@ func (q *Queries) GetProductMediaId(ctx context.Context, commodityID int64) ([]i
 }
 
 const getUserLendProduct = `-- name: GetUserLendProduct :many
-select id, user_id, price, texts, is_free, is_lend
+select id, name, user_id, price, texts, is_free, is_lend
 from commodity
 where user_id = ?
   and is_lend = 1
@@ -130,6 +220,7 @@ func (q *Queries) GetUserLendProduct(ctx context.Context, userID int64) ([]Commo
 		var i Commodity
 		if err := rows.Scan(
 			&i.ID,
+			&i.Name,
 			&i.UserID,
 			&i.Price,
 			&i.Texts,
@@ -147,4 +238,118 @@ func (q *Queries) GetUserLendProduct(ctx context.Context, userID int64) ([]Commo
 		return nil, err
 	}
 	return items, nil
+}
+
+const getUserNeedInfo = `-- name: GetUserNeedInfo :many
+select id, price, name, user_id
+from commodity
+where is_lend = 0
+  and user_id = ?
+`
+
+type GetUserNeedInfoRow struct {
+	ID     int64  `json:"id"`
+	Price  string `json:"price"`
+	Name   string `json:"name"`
+	UserID int64  `json:"user_id"`
+}
+
+func (q *Queries) GetUserNeedInfo(ctx context.Context, userID int64) ([]GetUserNeedInfoRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserNeedInfo, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserNeedInfoRow{}
+	for rows.Next() {
+		var i GetUserNeedInfoRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Price,
+			&i.Name,
+			&i.UserID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserProductInfo = `-- name: GetUserProductInfo :many
+select id, price, name, user_id, is_free
+from commodity
+where is_lend = 1
+  and user_id = ?
+`
+
+type GetUserProductInfoRow struct {
+	ID     int64  `json:"id"`
+	Price  string `json:"price"`
+	Name   string `json:"name"`
+	UserID int64  `json:"user_id"`
+	IsFree bool   `json:"is_free"`
+}
+
+func (q *Queries) GetUserProductInfo(ctx context.Context, userID int64) ([]GetUserProductInfoRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserProductInfo, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUserProductInfoRow{}
+	for rows.Next() {
+		var i GetUserProductInfoRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Price,
+			&i.Name,
+			&i.UserID,
+			&i.IsFree,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateProduct = `-- name: UpdateProduct :exec
+update commodity
+set name    = ?,
+    price   = ?,
+    texts   = ?,
+    is_free = ?
+where id = ?
+`
+
+type UpdateProductParams struct {
+	Name   string `json:"name"`
+	Price  string `json:"price"`
+	Texts  string `json:"texts"`
+	IsFree bool   `json:"is_free"`
+	ID     int64  `json:"id"`
+}
+
+func (q *Queries) UpdateProduct(ctx context.Context, arg UpdateProductParams) error {
+	_, err := q.db.ExecContext(ctx, updateProduct,
+		arg.Name,
+		arg.Price,
+		arg.Texts,
+		arg.IsFree,
+		arg.ID,
+	)
+	return err
 }

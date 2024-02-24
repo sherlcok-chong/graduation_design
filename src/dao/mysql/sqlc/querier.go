@@ -9,27 +9,45 @@ import (
 )
 
 type Querier interface {
+	CreateCommentMedias(ctx context.Context, arg CreateCommentMediasParams) error
 	CreateFile(ctx context.Context, arg CreateFileParams) error
+	CreateNewComment(ctx context.Context, arg CreateNewCommentParams) error
 	CreateNewMediaProduct(ctx context.Context, arg CreateNewMediaProductParams) error
 	CreateNewTagProduct(ctx context.Context, arg CreateNewTagProductParams) error
 	CreateProduct(ctx context.Context, arg CreateProductParams) error
 	CreateTag(ctx context.Context, tagName string) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
+	DeleteCommentID(ctx context.Context, id int64) error
+	DeleteFileByID(ctx context.Context, id int64) error
+	DeleteFileMedia(ctx context.Context, commodityID int64) error
 	DeleteProduct(ctx context.Context, id int64) error
 	ExistEmail(ctx context.Context, email string) (bool, error)
 	ExistsUserByID(ctx context.Context, id int64) (bool, error)
+	GetAllTags(ctx context.Context) ([]Tag, error)
+	GetCommentMedia(ctx context.Context, commodityID int64) ([]int64, error)
+	GetCommentUser(ctx context.Context, id int64) (int64, error)
 	GetFileByID(ctx context.Context, id int64) (string, error)
+	GetKeyByID(ctx context.Context, id int64) (string, error)
+	GetLastCommentID(ctx context.Context) (int64, error)
 	GetLastFileID(ctx context.Context) (int64, error)
 	GetLastProductID(ctx context.Context) (int64, error)
 	GetLastTag(ctx context.Context) (int64, error)
+	GetProductByID(ctx context.Context, id int64) (Commodity, error)
+	GetProductComment(ctx context.Context, productID int64) ([]Comment, error)
+	GetProductFirstMedia(ctx context.Context, commodityID int64) (interface{}, error)
+	GetProductInfo(ctx context.Context, offset int32) ([]GetProductInfoRow, error)
 	GetProductMedia(ctx context.Context, id int64) (string, error)
 	GetProductMediaId(ctx context.Context, commodityID int64) ([]int64, error)
-	GetProductTags(ctx context.Context, productID int64) ([]string, error)
+	GetProductTags(ctx context.Context, productID int64) ([]Tag, error)
 	GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (string, error)
+	GetUserAvatarByID(ctx context.Context, id int64) (string, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByUsername(ctx context.Context, name string) (User, error)
 	GetUserInfoById(ctx context.Context, id int64) (User, error)
 	GetUserLendProduct(ctx context.Context, userID int64) ([]Commodity, error)
+	GetUserNeedInfo(ctx context.Context, userID int64) ([]GetUserNeedInfoRow, error)
+	GetUserProductInfo(ctx context.Context, userID int64) ([]GetUserProductInfoRow, error)
+	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error
 	UpdateUserInfo(ctx context.Context, arg UpdateUserInfoParams) error
 }

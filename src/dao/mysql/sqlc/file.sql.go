@@ -31,6 +31,15 @@ func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) error {
 	return err
 }
 
+const deleteFileByID = `-- name: DeleteFileByID :exec
+delete from file where id = ?
+`
+
+func (q *Queries) DeleteFileByID(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, deleteFileByID, id)
+	return err
+}
+
 const getFileByID = `-- name: GetFileByID :one
 select url
 from file
@@ -42,6 +51,19 @@ func (q *Queries) GetFileByID(ctx context.Context, id int64) (string, error) {
 	var url string
 	err := row.Scan(&url)
 	return url, err
+}
+
+const getKeyByID = `-- name: GetKeyByID :one
+select file_key
+from file
+where id = ?
+`
+
+func (q *Queries) GetKeyByID(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getKeyByID, id)
+	var file_key string
+	err := row.Scan(&file_key)
+	return file_key, err
 }
 
 const getLastFileID = `-- name: GetLastFileID :one

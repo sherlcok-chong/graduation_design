@@ -27,6 +27,7 @@ func NewRouter() *gin.Engine {
 		rg.User.Init(root)
 		rg.File.Init(root)
 		rg.Product.Init(root)
+		rg.Tags.Init(root)
 	}
 	return r
 }

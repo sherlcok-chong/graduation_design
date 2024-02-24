@@ -34,6 +34,34 @@ func (q *Queries) CreateTag(ctx context.Context, tagName string) error {
 	return err
 }
 
+const getAllTags = `-- name: GetAllTags :many
+select tag_id, tag_name
+from tags
+`
+
+func (q *Queries) GetAllTags(ctx context.Context) ([]Tag, error) {
+	rows, err := q.db.QueryContext(ctx, getAllTags)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Tag{}
+	for rows.Next() {
+		var i Tag
+		if err := rows.Scan(&i.TagID, &i.TagName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getLastTag = `-- name: GetLastTag :one
 select LAST_INSERT_ID()
 `
@@ -46,24 +74,24 @@ func (q *Queries) GetLastTag(ctx context.Context) (int64, error) {
 }
 
 const getProductTags = `-- name: GetProductTags :many
-select tag_name
+select tag_id, tag_name
 from tags
 where tag_id in (select tag_id from product_tags where product_id = ?)
 `
 
-func (q *Queries) GetProductTags(ctx context.Context, productID int64) ([]string, error) {
+func (q *Queries) GetProductTags(ctx context.Context, productID int64) ([]Tag, error) {
 	rows, err := q.db.QueryContext(ctx, getProductTags, productID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []string{}
+	items := []Tag{}
 	for rows.Next() {
-		var tag_name string
-		if err := rows.Scan(&tag_name); err != nil {
+		var i Tag
+		if err := rows.Scan(&i.TagID, &i.TagName); err != nil {
 			return nil, err
 		}
-		items = append(items, tag_name)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

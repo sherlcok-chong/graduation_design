@@ -16,7 +16,11 @@ func (product) Init(router *gin.RouterGroup) {
 		pgGroup := pg.Group("ps")
 		{
 			pgGroup.GET("user", v1.Group.Product.GetUserLendProduct)
-			pgGroup.GET("info", v1.Group.Product.GetUserInfoProduct)
+			pgGroup.GET("need", v1.Group.Product.GetUserNeedProduct)
+			pgGroup.GET("info", v1.Group.Product.GetProductInfo)
+			pgGroup.GET("detail", v1.Group.Product.GetProductDetails)
 		}
+		pg.POST("delete", v1.Group.Product.DeleteProduct)
+		pg.POST("update", v1.Group.Product.UpdateProduct)
 	}
 }

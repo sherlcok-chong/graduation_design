@@ -2,6 +2,7 @@ package tx
 
 import (
 	db "GraduationDesign/src/dao/mysql/sqlc"
+	"GraduationDesign/src/model/reply"
 	"context"
 	"database/sql"
 	"fmt"
@@ -12,7 +13,13 @@ type TXer interface {
 	// UpdateUserAvatarTx  更新用户头像
 	UpdateUserAvatarTx(c *gin.Context, fileKey string, fileUrl string, userId int64) error
 	// GetUserLendProductTx 获取用户出租商品
-	GetUserLendProductTx(c *gin.Context, userId int64) ([]Product, error)
+	GetUserLendProductTx(c *gin.Context, userId int64) ([]reply.ProductInfo, error)
+	// GetUserNeedProductTx 需求
+	GetUserNeedProductTx(c *gin.Context, userId int64) ([]reply.ProductInfo, error)
+	// GetProductInfoTx 需求
+	GetProductInfoTx(c *gin.Context, offset int32) ([]reply.ProductInfo, error)
+	// GetProductDetailsTX 详情
+	GetProductDetailsTX(c *gin.Context, id int64) (reply.Product, error)
 }
 type SqlStore struct {
 	*db.Queries

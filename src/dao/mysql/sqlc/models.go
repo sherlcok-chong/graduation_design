@@ -8,10 +8,24 @@ import (
 	"time"
 )
 
+type Comment struct {
+	ID        int64  `json:"id"`
+	UserID    int64  `json:"user_id"`
+	ProductID int64  `json:"product_id"`
+	Texts     string `json:"texts"`
+}
+
+type CommentMedium struct {
+	ID        int64 `json:"id"`
+	CommentID int64 `json:"comment_id"`
+	FileID    int64 `json:"file_id"`
+}
+
 type Commodity struct {
 	ID     int64  `json:"id"`
+	Name   string `json:"name"`
 	UserID int64  `json:"user_id"`
-	Price  int32  `json:"price"`
+	Price  string `json:"price"`
 	Texts  string `json:"texts"`
 	IsFree bool   `json:"is_free"`
 	IsLend bool   `json:"is_lend"`

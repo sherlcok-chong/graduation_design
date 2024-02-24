@@ -51,7 +51,7 @@ func (o *OSS) UploadFile(file *multipart.FileHeader, options []oss.Option) (stri
 		return "", "", errors.New("function formUploader.Put() Failed, err:" + err.Error())
 	}
 
-	return o.config.BucketUrl + "/" + yunFileTmpPath, yunFileTmpPath, nil
+	return "http://" + o.config.BucketUrl + "/" + yunFileTmpPath, yunFileTmpPath, nil
 }
 
 // DeleteFile 删除文件

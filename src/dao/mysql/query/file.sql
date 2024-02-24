@@ -15,3 +15,11 @@ where userid = ?
 select url
 from file
 where id = ?;
+
+-- name: GetKeyByID :one
+select file_key
+from file
+where id = ?;
+
+-- name: DeleteFileByID :exec
+delete from file where id = ?;

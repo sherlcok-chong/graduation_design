@@ -5,6 +5,7 @@ type group struct {
 	Email   email
 	File    file
 	Product product
+	Tags    tags
 }
 
 var Group = new(group)

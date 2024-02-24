@@ -39,7 +39,7 @@ func (file) UpdateUserAvatar(c *gin.Context, req *request.UpdateUserAvatar, user
 	}, nil
 }
 
-func UploadFile(c *gin.Context, f *multipart.FileHeader, userID int64) (string, error) {
+func uploadFile(c *gin.Context, f *multipart.FileHeader, userID int64) (string, error) {
 	var url, key string
 	var err error
 	options := []oss.Option{

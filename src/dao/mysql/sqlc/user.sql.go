@@ -47,6 +47,17 @@ func (q *Queries) ExistsUserByID(ctx context.Context, id int64) (bool, error) {
 	return exists, err
 }
 
+const getUserAvatarByID = `-- name: GetUserAvatarByID :one
+select avatar from user where id = ?
+`
+
+func (q *Queries) GetUserAvatarByID(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserAvatarByID, id)
+	var avatar string
+	err := row.Scan(&avatar)
+	return avatar, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 select id, name, email, password, avatar, sign, gender, birthday
 from user

@@ -23,8 +23,9 @@ create table if not exists file #媒体文件
 create table if not exists commodity #商品
 (
     id      bigint primary key auto_increment,
+    name    varchar(20)  not null,
     user_id bigint       not null,
-    price   int          not null,
+    price   varchar(20)  not null,
     texts   varchar(255) not null,
     is_free bool         not null,
     is_lend bool         not null
@@ -57,9 +58,21 @@ CREATE TABLE product_tags
     PRIMARY KEY (product_id, tag_id)
 );
 
+-- 评论表
+create table if not exists comment
+(
+    id         bigint primary key not null auto_increment,
+    user_id    bigint             not null,
+    product_id bigint             not null,
+    texts      varchar(255)       not null default ''
+);
 
-
-
+create table if not exists comment_media #评论媒体
+(
+    id         bigint primary key not null key auto_increment,
+    comment_id bigint             not null,
+    file_id    bigint             not null
+);
 
 
 
