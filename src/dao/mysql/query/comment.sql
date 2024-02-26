@@ -3,7 +3,7 @@ insert into comment (user_id, product_id, texts)
 VALUES (?, ?, ?);
 
 -- name: CreateCommentMedias :exec
-insert into commodity_media (commodity_id, file_id)
+insert into comment_media (comment_id, file_id)
 values (?, ?);
 -- name: GetLastCommentID :one
 SELECT LAST_INSERT_ID();
@@ -20,8 +20,8 @@ where product_id = ?;
 
 -- name: GetCommentMedia :many
 select file_id
-from commodity_media
-where commodity_id = ?;
+from comment_media
+where comment_id = ?;
 
 -- name: GetCommentUser :one
 select user_id

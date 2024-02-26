@@ -32,12 +32,49 @@ func (q *Queries) CreateFile(ctx context.Context, arg CreateFileParams) error {
 }
 
 const deleteFileByID = `-- name: DeleteFileByID :exec
-delete from file where id = ?
+delete
+from file
+where id = ?
 `
 
 func (q *Queries) DeleteFileByID(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteFileByID, id)
 	return err
+}
+
+const getExpiredFileID = `-- name: GetExpiredFileID :many
+select id,file_key
+from file
+where id not in (select file_id from comment_media)
+   or id not in (select file_id from commodity_media)
+`
+
+type GetExpiredFileIDRow struct {
+	ID      int64  `json:"id"`
+	FileKey string `json:"file_key"`
+}
+
+func (q *Queries) GetExpiredFileID(ctx context.Context) ([]GetExpiredFileIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getExpiredFileID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetExpiredFileIDRow{}
+	for rows.Next() {
+		var i GetExpiredFileIDRow
+		if err := rows.Scan(&i.ID, &i.FileKey); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getFileByID = `-- name: GetFileByID :one

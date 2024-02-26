@@ -57,5 +57,6 @@ func (comment) GetProductComment(c *gin.Context) {
 		rly.Reply(myerr.AuthNotExist)
 		return
 	}
-
+	data, err := logic.Group.Comment.GetProductComment(c, req.ID)
+	rly.Reply(err, data)
 }

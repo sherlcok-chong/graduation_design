@@ -8,6 +8,7 @@ type group struct {
 	Worker    worker
 	Maker     maker
 	Oss       oss
+	Auto      auto
 }
 
 var Group = new(group)
@@ -20,4 +21,5 @@ func AllInit() {
 	Group.Worker.Init()
 	Group.Maker.Init()
 	Group.Oss.Init()
+	Group.Auto.Init()
 }

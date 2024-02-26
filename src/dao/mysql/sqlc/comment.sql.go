@@ -10,17 +10,17 @@ import (
 )
 
 const createCommentMedias = `-- name: CreateCommentMedias :exec
-insert into commodity_media (commodity_id, file_id)
+insert into comment_media (comment_id, file_id)
 values (?, ?)
 `
 
 type CreateCommentMediasParams struct {
-	CommodityID int64 `json:"commodity_id"`
-	FileID      int64 `json:"file_id"`
+	CommentID int64 `json:"comment_id"`
+	FileID    int64 `json:"file_id"`
 }
 
 func (q *Queries) CreateCommentMedias(ctx context.Context, arg CreateCommentMediasParams) error {
-	_, err := q.db.ExecContext(ctx, createCommentMedias, arg.CommodityID, arg.FileID)
+	_, err := q.db.ExecContext(ctx, createCommentMedias, arg.CommentID, arg.FileID)
 	return err
 }
 
@@ -53,12 +53,12 @@ func (q *Queries) DeleteCommentID(ctx context.Context, id int64) error {
 
 const getCommentMedia = `-- name: GetCommentMedia :many
 select file_id
-from commodity_media
-where commodity_id = ?
+from comment_media
+where comment_id = ?
 `
 
-func (q *Queries) GetCommentMedia(ctx context.Context, commodityID int64) ([]int64, error) {
-	rows, err := q.db.QueryContext(ctx, getCommentMedia, commodityID)
+func (q *Queries) GetCommentMedia(ctx context.Context, commentID int64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, getCommentMedia, commentID)
 	if err != nil {
 		return nil, err
 	}

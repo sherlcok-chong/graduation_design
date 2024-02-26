@@ -7,7 +7,7 @@ type Product struct {
 	Price    string                  `form:"price" binding:"required"`
 	Describe string                  `form:"describe" binding:"required"`
 	IsFree   bool                    `form:"is_free" binding:"required"`
-	Tags     []int64                 `form:"tags" binding:"required"`
+	Tags     string                  `form:"tags" binding:"required"`
 	IsLend   int                     `form:"is_lend" binding:"required"`
 	Media    []*multipart.FileHeader `form:"media" binding:"required"`
 }
@@ -30,7 +30,7 @@ type UpdateProduct struct {
 	Price    string                  `form:"price" binding:"required" json:"price,omitempty"`
 	Describe string                  `form:"describe" binding:"required" json:"describe,omitempty"`
 	IsFree   bool                    `form:"is_free" binding:"required" json:"isFree,omitempty"`
-	Tags     []int64                 `form:"tags" binding:"required" json:"tags,omitempty"`
+	Tags     string                  `form:"tags" binding:"required" json:"tags,omitempty"`
 	Media    []*multipart.FileHeader `form:"media" binding:"required" json:"media,omitempty"`
 }
 type AddComment struct {

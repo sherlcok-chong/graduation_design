@@ -22,4 +22,13 @@ from file
 where id = ?;
 
 -- name: DeleteFileByID :exec
-delete from file where id = ?;
+delete
+from file
+where id = ?;
+
+-- name: GetExpiredFileID :many
+select id,file_key
+from file
+where id not in (select file_id from comment_media)
+   or id not in (select file_id from commodity_media);
+

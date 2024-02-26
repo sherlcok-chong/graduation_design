@@ -10,6 +10,8 @@ import (
 	"GraduationDesign/src/myerr"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
 	"github.com/gin-gonic/gin"
+	"strconv"
+	"strings"
 )
 
 type product struct {
@@ -52,11 +54,13 @@ func (product) UploadProduct(c *gin.Context, req *request.Product, userID int64)
 			}
 		}
 	}
-	for _, v := range req.Tags {
+	tgs := strings.Split(req.Tags, ",")
+	for _, v := range tgs {
+		t, _ := strconv.ParseInt(v, 10, 64)
 		err = dao.Group.Mysql.CreateNewTagProduct(c,
 			db.CreateNewTagProductParams{
 				ProductID: pID,
-				TagID:     v,
+				TagID:     t,
 			})
 	}
 	return nil
@@ -146,11 +150,13 @@ func (product) UpdateProduct(c *gin.Context, req *request.UpdateProduct, userID 
 			}
 		}
 	}
-	for _, v := range req.Tags {
+	tgs := strings.Split(req.Tags, ",")
+	for _, v := range tgs {
+		t, _ := strconv.ParseInt(v, 10, 64)
 		err = dao.Group.Mysql.CreateNewTagProduct(c,
 			db.CreateNewTagProductParams{
 				ProductID: req.ID,
-				TagID:     v,
+				TagID:     t,
 			})
 	}
 	return nil
