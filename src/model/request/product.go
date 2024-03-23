@@ -8,7 +8,7 @@ type Product struct {
 	Describe string                  `form:"describe" binding:"required"`
 	IsFree   bool                    `form:"is_free" binding:"required"`
 	Tags     string                  `form:"tags" binding:"required"`
-	IsLend   int                     `form:"is_lend" binding:"required"`
+	IsLend   int                     `form:"is_lend"`
 	Media    []*multipart.FileHeader `form:"media" binding:"required"`
 }
 
@@ -36,7 +36,7 @@ type UpdateProduct struct {
 type AddComment struct {
 	ProductID int64                   `form:"product_id" binding:"required"`
 	Comment   string                  `form:"comment" binding:"required"`
-	Media     []*multipart.FileHeader `form:"media" binding:"required"`
+	Media     []*multipart.FileHeader `form:"media"`
 }
 
 type DeleteComment struct {

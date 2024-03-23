@@ -39,6 +39,14 @@ func (file) UpdateUserAvatar(c *gin.Context, req *request.UpdateUserAvatar, user
 	}, nil
 }
 
+func (file) UploadFile(c *gin.Context, f *multipart.FileHeader, userID int64) (string, errcode.Err) {
+	url, err := uploadFile(c, f, userID)
+	if err != nil {
+		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+		return "", errcode.ErrServer
+	}
+	return url, nil
+}
 func uploadFile(c *gin.Context, f *multipart.FileHeader, userID int64) (string, error) {
 	var url, key string
 	var err error

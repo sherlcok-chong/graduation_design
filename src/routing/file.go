@@ -15,6 +15,7 @@ func (file) Init(router *gin.RouterGroup) {
 		uploadGroup := fg.Group("upload").Use(mid.MustUser())
 		{
 			uploadGroup.POST("avatar", v1.Group.File.UpdateUserAvatar)
+			uploadGroup.POST("file", v1.Group.File.UploadFile)
 		}
 
 	}

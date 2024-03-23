@@ -7,7 +7,24 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const addAddressByID = `-- name: AddAddressByID :exec
+update user
+set address = ?
+where id = ?
+`
+
+type AddAddressByIDParams struct {
+	Address sql.NullString `json:"address"`
+	ID      int64          `json:"id"`
+}
+
+func (q *Queries) AddAddressByID(ctx context.Context, arg AddAddressByIDParams) error {
+	_, err := q.db.ExecContext(ctx, addAddressByID, arg.Address, arg.ID)
+	return err
+}
 
 const createUser = `-- name: CreateUser :exec
 INSERT INTO user (name, password, email)
@@ -48,7 +65,9 @@ func (q *Queries) ExistsUserByID(ctx context.Context, id int64) (bool, error) {
 }
 
 const getUserAvatarByID = `-- name: GetUserAvatarByID :one
-select avatar from user where id = ?
+select avatar
+from user
+where id = ?
 `
 
 func (q *Queries) GetUserAvatarByID(ctx context.Context, id int64) (string, error) {
@@ -59,7 +78,7 @@ func (q *Queries) GetUserAvatarByID(ctx context.Context, id int64) (string, erro
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-select id, name, email, password, avatar, sign, gender, birthday
+select id, name, email, password, avatar, sign, gender, birthday, address
 from user
 where email = ?
 limit 1
@@ -77,12 +96,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Sign,
 		&i.Gender,
 		&i.Birthday,
+		&i.Address,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-select id, name, email, password, avatar, sign, gender, birthday
+select id, name, email, password, avatar, sign, gender, birthday, address
 from user
 where name = ?
 limit 1
@@ -100,12 +120,13 @@ func (q *Queries) GetUserByUsername(ctx context.Context, name string) (User, err
 		&i.Sign,
 		&i.Gender,
 		&i.Birthday,
+		&i.Address,
 	)
 	return i, err
 }
 
 const getUserInfoById = `-- name: GetUserInfoById :one
-select id, name, email, password, avatar, sign, gender, birthday
+select id, name, email, password, avatar, sign, gender, birthday, address
 from user
 where id = ?
 `
@@ -122,6 +143,7 @@ func (q *Queries) GetUserInfoById(ctx context.Context, id int64) (User, error) {
 		&i.Sign,
 		&i.Gender,
 		&i.Birthday,
+		&i.Address,
 	)
 	return i, err
 }

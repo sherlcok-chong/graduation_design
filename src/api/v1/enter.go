@@ -7,6 +7,9 @@ type group struct {
 	Product product
 	Tags    tags
 	Comment comment
+	Orders  orders
+	Alipay  alipay
+	Ws      ws
 }
 
 var Group = new(group)

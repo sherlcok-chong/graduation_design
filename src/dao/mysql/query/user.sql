@@ -39,4 +39,11 @@ from user
 where id = ?;
 
 -- name: GetUserAvatarByID :one
-select avatar from user where id = ?;
+select avatar
+from user
+where id = ?;
+
+-- name: AddAddressByID :exec
+update user
+set address = ?
+where id = ?

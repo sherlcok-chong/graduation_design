@@ -10,6 +10,7 @@ import (
 	"GraduationDesign/src/model/reply"
 	"GraduationDesign/src/model/request"
 	"GraduationDesign/src/myerr"
+	"database/sql"
 	"errors"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
 	encode "github.com/0RAJA/Rutils/pkg/password"
@@ -247,5 +248,21 @@ func (user) GetUserInfo(c *gin.Context, userId int64) (rsp *reply.UserData, myEr
 		Sign:     data.Sign,
 		Gender:   data.Gender,
 		Birthday: data.Birthday,
+		Address:  data.Address.String,
 	}, nil
+}
+
+func (user) UpdateUserAddress(c *gin.Context, uID int64, address string) errcode.Err {
+	err := dao.Group.Mysql.AddAddressByID(c, db.AddAddressByIDParams{
+		Address: sql.NullString{
+			String: address,
+			Valid:  true,
+		},
+		ID: uID,
+	})
+	if err != nil {
+		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+		return errcode.ErrServer
+	}
+	return nil
 }

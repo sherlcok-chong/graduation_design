@@ -27,4 +27,5 @@ type UserData struct {
 	Sign     string   `json:"sign"`     // 签名
 	Gender   string   `json:"gender"`   // 性别
 	Birthday string   `json:"birthday"` // 生日
+	Address  string   `json:"address"`
 }

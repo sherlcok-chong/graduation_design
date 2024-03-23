@@ -20,6 +20,7 @@ func (user) Init(router *gin.RouterGroup) {
 			//	updateGroup.PUT("pwd", v1.Group.User.UpdateUserPassword)
 		}
 		ug.GET("info", v1.Group.User.GetUserInfo).Use(mid.MustUser())
-		//ug.DELETE("delete", mid.MustUser(), v1.Group.User.DeleteUser)
+		ug.GET("other_info", v1.Group.User.OtherGetUserInfo).Use(mid.MustUser())
+		ug.POST("address", v1.Group.User.UpdateUserAddress).Use(mid.MustUser())
 	}
 }

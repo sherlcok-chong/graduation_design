@@ -71,3 +71,8 @@ set name    = ?,
     texts   = ?,
     is_free = ?
 where id = ?;
+
+-- name: GetProductLike :one
+select id, price, name, user_id,is_free
+from commodity
+where id = ?;

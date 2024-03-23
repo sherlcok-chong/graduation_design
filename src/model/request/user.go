@@ -27,3 +27,11 @@ type UpdateUserInfo struct {
 	Gender   string `json:"gender" binding:"required"`   // 性别
 	Birthday string `json:"birthday" binding:"required"` // 生日
 }
+
+type UpdateUserAddress struct {
+	Address string `json:"address" binding:"required"`
+}
+
+type OtherUserGetInfo struct {
+	UserID int64 `json:"user_id" binding:"required"`
+}

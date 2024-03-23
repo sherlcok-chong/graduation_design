@@ -160,6 +160,33 @@ func (q *Queries) GetProductInfo(ctx context.Context, offset int32) ([]GetProduc
 	return items, nil
 }
 
+const getProductLike = `-- name: GetProductLike :one
+select id, price, name, user_id,is_free
+from commodity
+where id = ?
+`
+
+type GetProductLikeRow struct {
+	ID     int64  `json:"id"`
+	Price  string `json:"price"`
+	Name   string `json:"name"`
+	UserID int64  `json:"user_id"`
+	IsFree bool   `json:"is_free"`
+}
+
+func (q *Queries) GetProductLike(ctx context.Context, id int64) (GetProductLikeRow, error) {
+	row := q.db.QueryRowContext(ctx, getProductLike, id)
+	var i GetProductLikeRow
+	err := row.Scan(
+		&i.ID,
+		&i.Price,
+		&i.Name,
+		&i.UserID,
+		&i.IsFree,
+	)
+	return i, err
+}
+
 const getProductMedia = `-- name: GetProductMedia :one
 select url
 from file

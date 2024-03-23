@@ -82,8 +82,8 @@ func (product) GetUserNeed(c *gin.Context, userId int64) ([]reply.ProductInfo, e
 	}
 	return data, nil
 }
-func (product) GetProductDetails(c *gin.Context, userId int64) (reply.Product, errcode.Err) {
-	data, err := dao.Group.Mysql.GetProductDetailsTX(c, userId)
+func (product) GetProductDetails(c *gin.Context, pId, uID int64) (reply.Product, errcode.Err) {
+	data, err := dao.Group.Mysql.GetProductDetailsTX(c, pId, uID)
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return reply.Product{}, errcode.ErrServer
@@ -105,6 +105,7 @@ func (product) DeleteProduct(c *gin.Context, productID, userID int64) errcode.Er
 		return err
 	}
 	err := dao.Group.Mysql.DeleteProduct(c, productID)
+	err = dao.Group.Mysql.DeleteLike(c, productID)
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return errcode.ErrServer
@@ -162,6 +163,75 @@ func (product) UpdateProduct(c *gin.Context, req *request.UpdateProduct, userID 
 	return nil
 }
 
+func (product) ChangeLikeProduct(c *gin.Context, uID, pID int64) errcode.Err {
+	f, err := dao.Group.Mysql.CheckUserLike(c, db.CheckUserLikeParams{
+		UserID:    uID,
+		ProductID: pID,
+	})
+	if err != nil {
+		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+		return errcode.ErrServer
+	}
+	if f {
+		err = dao.Group.Mysql.DisLikeProduct(c, db.DisLikeProductParams{
+			UserID:    uID,
+			ProductID: pID,
+		})
+	} else {
+		err = dao.Group.Mysql.LikeProduct(c, db.LikeProductParams{
+			UserID:    uID,
+			ProductID: pID,
+		})
+	}
+	if err != nil {
+		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+		return errcode.ErrServer
+	}
+	return nil
+}
+
+func (product) GetLikeList(c *gin.Context, uID int64) ([]reply.ProductInfo, errcode.Err) {
+	pids, err := dao.Group.Mysql.GetLikeList(c, uID)
+	if err != nil {
+		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+		return nil, errcode.ErrServer
+	}
+	rsp := make([]reply.ProductInfo, 0, len(pids))
+	for _, v := range pids {
+		p := reply.ProductInfo{}
+		data, err := dao.Group.Mysql.GetProductLike(c, v)
+		if err != nil {
+			global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+			return nil, errcode.ErrServer
+		}
+		p = reply.ProductInfo{
+			ID:       v,
+			Name:     data.Name,
+			Price:    data.Price,
+			Media:    "",
+			UserName: "",
+			Avatar:   "",
+			IsFree:   data.IsFree,
+		}
+		ud, err := dao.Group.Mysql.GetUserInfoById(c, data.UserID)
+		p.UserName = ud.Name
+		p.Avatar = ud.Avatar
+		d, err := dao.Group.Mysql.GetProductFirstMedia(c, v)
+		if err != nil {
+			global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+			return nil, errcode.ErrServer
+		}
+		id := d.(int64)
+		media, err := dao.Group.Mysql.GetFileByID(c, id)
+		if err != nil {
+			global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+			return nil, errcode.ErrServer
+		}
+		p.Media = media
+		rsp = append(rsp, p)
+	}
+	return rsp, nil
+}
 func deleteProductFileWithOSS(c *gin.Context, ID int64) error {
 	data, err := dao.Group.Mysql.GetProductMediaId(c, ID)
 	if err != nil {

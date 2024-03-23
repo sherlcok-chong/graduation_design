@@ -1,6 +1,7 @@
 package main
 
 import (
+	v1 "GraduationDesign/src/api/v1"
 	"context"
 	"errors"
 	"fmt"
@@ -57,12 +58,7 @@ func main() {
 			errChan <- err
 		}
 	}()
-	//go func() {
-	//	defer ws.Close()
-	//	if err := ws.Serve(); err != nil {
-	//		errChan <- err
-	//	}
-	//}()
+	go v1.Group.Ws.Broadcast()
 	// 优雅退出
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

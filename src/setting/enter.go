@@ -9,6 +9,7 @@ type group struct {
 	Maker     maker
 	Oss       oss
 	Auto      auto
+	AliPay    alipay
 }
 
 var Group = new(group)
@@ -22,4 +23,5 @@ func AllInit() {
 	Group.Maker.Init()
 	Group.Oss.Init()
 	Group.Auto.Init()
+	//Group.AliPay.Init()
 }

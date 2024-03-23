@@ -152,11 +152,11 @@ func (store *SqlStore) GetProductInfoTx(c *gin.Context, offset int32) ([]reply.P
 		return err
 	})
 }
-func (store *SqlStore) GetProductDetailsTX(c *gin.Context, id int64) (reply.Product, error) {
+func (store *SqlStore) GetProductDetailsTX(c *gin.Context, pID, uID int64) (reply.Product, error) {
 	ps := reply.Product{}
 	return ps, store.execTx(c, func(queries *db.Queries) error {
 		var err error
-		com, err := queries.GetProductByID(c, id)
+		com, err := queries.GetProductByID(c, pID)
 		if err != nil {
 			return err
 		}
@@ -169,7 +169,7 @@ func (store *SqlStore) GetProductDetailsTX(c *gin.Context, id int64) (reply.Prod
 			IsFree: com.IsFree,
 			IsLend: com.IsLend,
 		}
-		ids, err := queries.GetProductMediaId(c, id)
+		ids, err := queries.GetProductMediaId(c, pID)
 		if err != nil {
 			return err
 		}
@@ -180,7 +180,7 @@ func (store *SqlStore) GetProductDetailsTX(c *gin.Context, id int64) (reply.Prod
 			}
 			ps.Media = append(ps.Media, url)
 		}
-		tags, err := queries.GetProductTags(c, id)
+		tags, err := queries.GetProductTags(c, pID)
 		if err != nil {
 			return err
 		}
@@ -192,6 +192,14 @@ func (store *SqlStore) GetProductDetailsTX(c *gin.Context, id int64) (reply.Prod
 			}
 			t = append(t, d)
 		}
+		f, err := queries.CheckUserLike(c, db.CheckUserLikeParams{
+			UserID:    uID,
+			ProductID: com.ID,
+		})
+		if err != nil {
+			return err
+		}
+		ps.IsLike = f
 		ps.Tags = t
 		return err
 	})

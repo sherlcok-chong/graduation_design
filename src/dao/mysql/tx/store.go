@@ -19,7 +19,7 @@ type TXer interface {
 	// GetProductInfoTx 需求
 	GetProductInfoTx(c *gin.Context, offset int32) ([]reply.ProductInfo, error)
 	// GetProductDetailsTX 详情
-	GetProductDetailsTX(c *gin.Context, id int64) (reply.Product, error)
+	GetProductDetailsTX(c *gin.Context, pid, uID int64) (reply.Product, error)
 }
 type SqlStore struct {
 	*db.Queries

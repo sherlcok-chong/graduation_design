@@ -11,13 +11,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type file struct {
+type orders struct {
 }
 
-func (file) UpdateUserAvatar(c *gin.Context) {
+func (orders) CreatOrder(c *gin.Context) {
 	rly := app.NewResponse(c)
-	params := &request.UpdateUserAvatar{}
-	if err := c.ShouldBind(params); err != nil {
+	p := &request.Order{}
+	if err := c.ShouldBindJSON(p); err != nil {
 		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
 		return
 	}
@@ -26,14 +26,25 @@ func (file) UpdateUserAvatar(c *gin.Context) {
 		rly.Reply(myerr.AuthNotExist)
 		return
 	}
-	rsp, err := logic.Group.File.UpdateUserAvatar(c, params, content.ID)
+	err := logic.Group.Order.CreateOrder(c, *p)
+	rly.Reply(err)
+}
+
+func (orders) GetOrderList(c *gin.Context) {
+	rly := app.NewResponse(c)
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
+	}
+	rsp, err := logic.Group.Order.GetOrderList(c, content.ID)
 	rly.Reply(err, rsp)
 }
 
-func (file) UploadFile(c *gin.Context) {
+func (orders) ChangeOrderStatus(c *gin.Context) {
 	rly := app.NewResponse(c)
-	params := &request.UploadFile{}
-	if err := c.ShouldBind(params); err != nil {
+	req := &request.ChangeOrderStatus{}
+	if err := c.ShouldBindJSON(req); err != nil {
 		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
 		return
 	}
@@ -42,6 +53,6 @@ func (file) UploadFile(c *gin.Context) {
 		rly.Reply(myerr.AuthNotExist)
 		return
 	}
-	rsp, err := logic.Group.File.UploadFile(c, params.File, content.ID)
-	rly.Reply(err, rsp)
+	err := logic.Group.Order.ChangeOrderStatus(c, *req)
+	rly.Reply(err, nil)
 }

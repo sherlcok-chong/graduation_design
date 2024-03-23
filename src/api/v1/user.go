@@ -79,6 +79,37 @@ func (user) GetUserInfo(c *gin.Context) {
 	rly.Reply(err, rsp)
 }
 
+func (user) UpdateUserAddress(c *gin.Context) {
+	rly := app.NewResponse(c)
+	req := &request.UpdateUserAddress{}
+	if err := c.ShouldBindJSON(req); err != nil {
+		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
+		return
+	}
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
+	}
+	err := logic.Group.User.UpdateUserAddress(c, content.ID, req.Address)
+	rly.Reply(err)
+}
+func (user) OtherGetUserInfo(c *gin.Context) {
+	rly := app.NewResponse(c)
+	req := &request.OtherUserGetInfo{}
+	if err := c.ShouldBindQuery(req); err != nil {
+		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
+		return
+	}
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
+	}
+	rsp, err := logic.Group.User.GetUserInfo(c, req.UserID)
+	rly.Reply(err, rsp)
+}
+
 // UpdateUserEmail 更新用户邮箱
 // @Tags      user
 // @Summary   更新用户邮箱

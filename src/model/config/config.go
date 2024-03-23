@@ -23,6 +23,7 @@ type Private struct {
 	Email     Email     `yaml:"Email"`
 	Token     Token     `yaml:"AccessToken"`
 	AliyunOSS AliyunOSS `yaml:"AliyunOSS"`
+	AliPay    AliPay    `yaml:"AliPay"`
 }
 
 type Token struct {
@@ -150,4 +151,15 @@ type Auto struct {
 type Retry struct {
 	Duration time.Duration `yaml:"Duration"`
 	MaxTimes int           `yaml:"MaxTimes"`
+}
+
+type AliPay struct {
+	KPrivateKey          string `yaml:"kPrivateKey"`
+	AppPublicCertPath    string `yaml:"AppPublicCertPath"`
+	AliPayRootCertPath   string `yaml:"AliPayRootCertPath"`
+	AliPayPublicCertPath string `yaml:"AliPayPublicCertPath"`
+	NotifyURL            string `yaml:"NotifyURL"`
+	ReturnURL            string `yaml:"ReturnURL"`
+	IsProduction         bool   `yaml:"IsProduction"`
+	KAppID               string `yaml:"kAppID"`
 }

@@ -5,6 +5,7 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -46,6 +47,37 @@ type File struct {
 	CreateAt time.Time `json:"create_at"`
 }
 
+type LendTime struct {
+	ID        int64  `json:"id"`
+	ProductID int64  `json:"product_id"`
+	StartTime string `json:"start_time"`
+	EndTime   string `json:"end_time"`
+}
+
+type Message struct {
+	ID       int64     `json:"id"`
+	Fid      int64     `json:"fid"`
+	Tid      int64     `json:"tid"`
+	IsFile   bool      `json:"is_file"`
+	IsRead   bool      `json:"is_read"`
+	Texts    string    `json:"texts"`
+	Createat time.Time `json:"createat"`
+}
+
+type Order struct {
+	ID             int64  `json:"id"`
+	LendUserID     int64  `json:"lend_user_id"`
+	BorrowUserID   int64  `json:"borrow_user_id"`
+	ProductID      int64  `json:"product_id"`
+	UnitPrice      string `json:"unit_price"`
+	TotalPrice     string `json:"total_price"`
+	CompletionTime string `json:"completion_time"`
+	ProductStatus  int32  `json:"product_status"`
+	ExpressNumber  string `json:"express_number"`
+	StartTime      string `json:"start_time"`
+	EndTime        string `json:"end_time"`
+}
+
 type ProductTag struct {
 	ProductID int64 `json:"product_id"`
 	TagID     int64 `json:"tag_id"`
@@ -57,12 +89,19 @@ type Tag struct {
 }
 
 type User struct {
-	ID       int64  `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Avatar   string `json:"avatar"`
-	Sign     string `json:"sign"`
-	Gender   string `json:"gender"`
-	Birthday string `json:"birthday"`
+	ID       int64          `json:"id"`
+	Name     string         `json:"name"`
+	Email    string         `json:"email"`
+	Password string         `json:"password"`
+	Avatar   string         `json:"avatar"`
+	Sign     string         `json:"sign"`
+	Gender   string         `json:"gender"`
+	Birthday string         `json:"birthday"`
+	Address  sql.NullString `json:"address"`
+}
+
+type UserLike struct {
+	ID        int64 `json:"id"`
+	UserID    int64 `json:"user_id"`
+	ProductID int64 `json:"product_id"`
 }

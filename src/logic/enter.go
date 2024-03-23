@@ -8,6 +8,8 @@ type group struct {
 	Tags    tags
 	Comment comment
 	Auto    auto
+	Order   order
+	WS      ws
 }
 
 var Group = new(group)
