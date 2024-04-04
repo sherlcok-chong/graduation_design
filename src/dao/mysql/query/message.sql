@@ -23,3 +23,6 @@ where tid = ?
 select distinct fid
 from message
 where tid = ?;
+
+-- name: ReadUserMessage :exec
+update message set is_read = true where fid = ? and tid = ?;

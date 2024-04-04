@@ -7,7 +7,8 @@ type MsgSend struct {
 	FClientID int64     `json:"f_client_id"`
 	FUserID   int64     `json:"f_user_id"`
 	TUserID   int64     `json:"t_user_id"`
-	MsgType   int64     `json:"msg_type"`
+	MsgType   int64     `json:"msg_type"` //
+	IsFile    bool      `json:"is_file"`
 	Text      string    `json:"text"`
 	IsRead    bool      `json:"is_read"`
 	CreateAt  time.Time `json:"create_at"`
@@ -18,4 +19,8 @@ type NotReadMsg struct {
 	UserName string    `json:"user_name,omitempty"`
 	Avatar   string    `json:"avatar,omitempty"`
 	Msg      []MsgSend `json:"msg,omitempty"`
+}
+
+type FromUserID struct {
+	UserID int64 `form:"user_id"`
 }

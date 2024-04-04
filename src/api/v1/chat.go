@@ -120,7 +120,7 @@ func (ws) Broadcast() {
 			break
 		}
 		msg := &chat.MsgSend{}
-
+		fmt.Println(string(v))
 		if err := json.Unmarshal(v, msg); err != nil {
 			global.Logger.Error(err.Error())
 			fmt.Println(string(v))
@@ -143,7 +143,7 @@ func (ws) Broadcast() {
 			if msg.MsgType == 2 {
 				global.Logger.Info("check sign")
 				// 验签
-				token, err := mustUser(msg.Text)
+				token, err := mid.MustAccount(msg.Text)
 				if err != nil {
 					clf.sendConnectMsg("check token fault")
 					delete(clients, msg.FClientID)
@@ -179,7 +179,7 @@ func (ws) Broadcast() {
 				err := dao.Group.Mysql.CreateNewMessage(ctx, db.CreateNewMessageParams{
 					Fid:      msg.FUserID,
 					Tid:      msg.TUserID,
-					IsFile:   msg.MsgType == 2,
+					IsFile:   msg.IsFile,
 					IsRead:   false,
 					Texts:    msg.Text,
 					Createat: msg.CreateAt,
@@ -205,29 +205,18 @@ func (ws) GetNotReadMsg(c *gin.Context) {
 	rly.Reply(err, data)
 }
 
-func mustUser(accessToken string) (*model.Token, errcode.Err) {
-	payload, _, merr := mid.ParseHeader(accessToken)
-	if merr != nil {
-		return nil, merr
+func (ws) ReadAllMessage(c *gin.Context) {
+	rly := app.NewResponse(c)
+	req := &chat.FromUserID{}
+	if err := c.ShouldBindQuery(req); err != nil {
+		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
+		return
 	}
-	content := &model.Content{}
-	if err := content.Unmarshal(payload.Content); err != nil {
-		return nil, myerr.AuthenticationFailed
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
 	}
-	if content.Type != model.UserToken {
-		return nil, myerr.AuthenticationFailed
-	}
-	ok, err := dao.Group.Mysql.ExistsUserByID(context.Background(), content.ID)
-	if err != nil {
-		global.Logger.Error(err.Error())
-		return nil, errcode.ErrServer
-	}
-	if !ok {
-		return nil, myerr.UserNotFound
-	}
-	return &model.Token{
-		AccessToken: accessToken,
-		Payload:     payload,
-		Content:     content,
-	}, nil
+	err := logic.Group.WS.ReadUserMsg(c, req.UserID, content.ID)
+	rly.Reply(err, nil)
 }

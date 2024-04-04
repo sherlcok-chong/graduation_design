@@ -14,14 +14,15 @@ import (
 type order struct {
 }
 
-func (order) CreateOrder(c *gin.Context, req request.Order) errcode.Err {
+func (order) CreateOrder(c *gin.Context, req request.Order, orderID string) errcode.Err {
 	err := dao.Group.Mysql.CreateOrder(c, db.CreateOrderParams{
+		OrderID:       orderID,
 		LendUserID:    req.LendUserID,
 		BorrowUserID:  req.BorrowUserID,
 		ProductID:     req.ProductID,
 		UnitPrice:     req.UintPrice,
 		TotalPrice:    req.TotalPrice,
-		ProductStatus: 0,
+		ProductStatus: -1,
 		StartTime:     req.StartTime,
 		EndTime:       req.EndTime,
 	})
@@ -42,6 +43,7 @@ func (order) GetOrderList(c *gin.Context, userID int64) ([]reply.Order, errcode.
 	for _, v := range data {
 		r := reply.Order{
 			ID:           v.ID,
+			OrderID:      v.OrderID,
 			ProductID:    v.ProductID,
 			LendUserID:   v.LendUserID,
 			BorrowUserID: v.BorrowUserID,
@@ -77,17 +79,17 @@ func (order) LendBusyTime(c *gin.Context, pid int64) (reply.BusyTime, errcode.Er
 	rsp.Times = times
 	return rsp, nil
 }
-func (order) ChangeOrderStatus(c *gin.Context, req request.ChangeOrderStatus) errcode.Err {
+func (order) ChangeOrderStatus(c *gin.Context, req *request.ChangeOrderStatus) errcode.Err {
 	var err error
 	if req.Status == 1 {
 		err = dao.Group.Mysql.UpdateOrderExpress(c, db.UpdateOrderExpressParams{
 			ExpressNumber: req.ExpressNum,
-			ID:            req.ProductID,
+			ID:            req.ID,
 		})
 	} else if req.Status == 2 {
-		err = dao.Group.Mysql.EnsureExpress(c, req.ProductID)
+		err = dao.Group.Mysql.EnsureExpress(c, req.ID)
 	} else if req.Status == 3 {
-		err = dao.Group.Mysql.EnsureRec(c, req.ProductID)
+		err = dao.Group.Mysql.EnsureRec(c, req.ID)
 	}
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)

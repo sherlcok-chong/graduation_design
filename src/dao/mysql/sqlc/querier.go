@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	AddAddressByID(ctx context.Context, arg AddAddressByIDParams) error
+	ChangeStatusByOrderID(ctx context.Context, orderID string) error
 	CheckUserLike(ctx context.Context, arg CheckUserLikeParams) (bool, error)
 	CreateCommentMedias(ctx context.Context, arg CreateCommentMediasParams) error
 	CreateFile(ctx context.Context, arg CreateFileParams) error
@@ -68,6 +69,7 @@ type Querier interface {
 	GetUserWhoTalk(ctx context.Context, tid int64) ([]int64, error)
 	LikeProduct(ctx context.Context, arg LikeProductParams) error
 	ReadMessage(ctx context.Context, id int64) error
+	ReadUserMessage(ctx context.Context, arg ReadUserMessageParams) error
 	UpdateOrderExpress(ctx context.Context, arg UpdateOrderExpressParams) error
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error

@@ -56,3 +56,14 @@ func (ws) GetNotReadMsg(c *gin.Context, userID int64) ([]chat.NotReadMsg, errcod
 	}
 	return rsp, nil
 }
+
+func (ws) ReadUserMsg(c *gin.Context, fid, tid int64) errcode.Err {
+	err := dao.Group.Mysql.ReadUserMessage(c, db.ReadUserMessageParams{
+		Fid: fid,
+		Tid: tid,
+	})
+	if err != nil {
+		return errcode.ErrServer
+	}
+	return nil
+}

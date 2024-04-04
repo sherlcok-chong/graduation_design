@@ -4,11 +4,14 @@ import (
 	"GraduationDesign/src/logic"
 	mid "GraduationDesign/src/middleware"
 	"GraduationDesign/src/model"
+	"GraduationDesign/src/model/reply"
 	"GraduationDesign/src/model/request"
 	"GraduationDesign/src/myerr"
 	"github.com/0RAJA/Rutils/pkg/app"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
 	"github.com/gin-gonic/gin"
+	"github.com/smartwalle/xid"
+	"strconv"
 )
 
 type orders struct {
@@ -26,8 +29,9 @@ func (orders) CreatOrder(c *gin.Context) {
 		rly.Reply(myerr.AuthNotExist)
 		return
 	}
-	err := logic.Group.Order.CreateOrder(c, *p)
-	rly.Reply(err)
+	orderID := strconv.FormatInt(xid.Next(), 10)
+	err := logic.Group.Order.CreateOrder(c, *p, orderID)
+	rly.Reply(err, reply.OrderID{ID: orderID})
 }
 
 func (orders) GetOrderList(c *gin.Context) {
@@ -53,6 +57,6 @@ func (orders) ChangeOrderStatus(c *gin.Context) {
 		rly.Reply(myerr.AuthNotExist)
 		return
 	}
-	err := logic.Group.Order.ChangeOrderStatus(c, *req)
+	err := logic.Group.Order.ChangeOrderStatus(c, req)
 	rly.Reply(err, nil)
 }

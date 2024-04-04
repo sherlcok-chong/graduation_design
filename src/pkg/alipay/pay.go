@@ -19,6 +19,7 @@ type Client struct {
 type Config struct {
 	KAppID               string // 应用ID
 	KPrivateKey          string // 应用私钥
+	AppPublicKey         string
 	IsProduction         bool   // 是否是正式环境
 	AppPublicCertPath    string // app公钥证书路径
 	AliPayRootCertPath   string // alipay根证书路径
@@ -40,9 +41,7 @@ func Init(config Config) *Client {
 		aliClient, err = alipay.New(config.KAppID, config.KPrivateKey, config.IsProduction)
 		return err
 	})
-	doThat(func() error { return aliClient.LoadAppPublicCertFromFile(config.AppPublicCertPath) })
-	doThat(func() error { return aliClient.LoadAliPayRootCertFromFile(config.AliPayRootCertPath) })
-	doThat(func() error { return aliClient.LoadAliPayPublicCertFromFile(config.AliPayPublicCertPath) })
+	doThat(func() error { return aliClient.LoadAliPayPublicKey(config.AppPublicKey) })
 	return &Client{client: aliClient, notifyURL: config.NotifyURL, returnURL: config.ReturnURL}
 }
 
@@ -87,12 +86,9 @@ func (client *Client) Pay(order Order) (payUrl string, err error) {
 
 // VerifyForm 校验form表单并返回对应订单ID(注意: callback为get,notify为post)
 func (client *Client) VerifyForm(form url.Values) (orderID string, err error) {
-	ok, err := client.client.VerifySign(form)
+	err = client.client.VerifySign(form)
 	if err != nil {
 		return "", err
-	}
-	if !ok {
-		return "", ErrVerifySign
 	}
 	orderID = form.Get("out_trade_no")
 	var p = alipay.TradeQuery{}
@@ -102,7 +98,7 @@ func (client *Client) VerifyForm(form url.Values) (orderID string, err error) {
 		return "", fmt.Errorf("异步通知验证订单 %s 信息发生错误: %s", orderID, err.Error())
 	}
 	if !rsp.IsSuccess() {
-		return "", fmt.Errorf("异步通知验证订单 %s 信息发生错误: %s-%s", orderID, rsp.Content.Msg, rsp.Content.SubMsg)
+		return "", fmt.Errorf("异步通知验证订单 %s 信息发生错误: %s-%s", orderID, rsp.Msg, rsp.SubMsg)
 	}
 	return orderID, nil
 }

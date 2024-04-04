@@ -78,6 +78,7 @@ create table if not exists comment_media #评论媒体
 create table if not exists orders
 (
     id              bigint primary key not null auto_increment,
+    order_id        varchar(20)        not null,
     lend_user_id    bigint             not null,
     borrow_user_id  bigint             not null,
     product_id      bigint             not null,
@@ -86,8 +87,8 @@ create table if not exists orders
     completion_time varchar(10)        not null default '', #完成时间 归还
     product_status  int                not null default 0,  #当期状态 0，商家邮递中 1 租赁中 2 归还中 3 已归还
     express_number  varchar(20)        not null default ' ',
-    start_time      varchar(10)        not null,
-    end_time        varchar(10)        not null
+    start_time      datetime           not null,
+    end_time        datetime           not null
 );
 create table if not exists user_like
 (

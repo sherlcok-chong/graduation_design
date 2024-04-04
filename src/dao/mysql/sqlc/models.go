@@ -65,17 +65,18 @@ type Message struct {
 }
 
 type Order struct {
-	ID             int64  `json:"id"`
-	LendUserID     int64  `json:"lend_user_id"`
-	BorrowUserID   int64  `json:"borrow_user_id"`
-	ProductID      int64  `json:"product_id"`
-	UnitPrice      string `json:"unit_price"`
-	TotalPrice     string `json:"total_price"`
-	CompletionTime string `json:"completion_time"`
-	ProductStatus  int32  `json:"product_status"`
-	ExpressNumber  string `json:"express_number"`
-	StartTime      string `json:"start_time"`
-	EndTime        string `json:"end_time"`
+	ID             int64     `json:"id"`
+	OrderID        string    `json:"order_id"`
+	LendUserID     int64     `json:"lend_user_id"`
+	BorrowUserID   int64     `json:"borrow_user_id"`
+	ProductID      int64     `json:"product_id"`
+	UnitPrice      string    `json:"unit_price"`
+	TotalPrice     string    `json:"total_price"`
+	CompletionTime string    `json:"completion_time"`
+	ProductStatus  int32     `json:"product_status"`
+	ExpressNumber  string    `json:"express_number"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time"`
 }
 
 type ProductTag struct {

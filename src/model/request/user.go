@@ -33,5 +33,5 @@ type UpdateUserAddress struct {
 }
 
 type OtherUserGetInfo struct {
-	UserID int64 `json:"user_id" binding:"required"`
+	UserID int64 `form:"user_id" binding:"required"`
 }

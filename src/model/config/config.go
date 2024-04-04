@@ -155,6 +155,7 @@ type Retry struct {
 
 type AliPay struct {
 	KPrivateKey          string `yaml:"kPrivateKey"`
+	AppPublicKey         string `yaml:"AppPublicKey"`
 	AppPublicCertPath    string `yaml:"AppPublicCertPath"`
 	AliPayRootCertPath   string `yaml:"AliPayRootCertPath"`
 	AliPayPublicCertPath string `yaml:"AliPayPublicCertPath"`

@@ -23,5 +23,5 @@ func AllInit() {
 	Group.Maker.Init()
 	Group.Oss.Init()
 	Group.Auto.Init()
-	//Group.AliPay.Init()
+	Group.AliPay.Init()
 }

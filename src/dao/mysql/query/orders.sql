@@ -1,6 +1,6 @@
 -- name: CreateOrder :exec
-insert into orders (lend_user_id, borrow_user_id, product_id, unit_price,
-                    total_price, completion_time, product_status,
+insert into orders (lend_user_id, order_id, borrow_user_id, product_id, unit_price,
+                    total_price, product_status,
                     start_time, end_time)
 values (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
@@ -44,3 +44,8 @@ where id = ?;
 update orders
 set product_status = 3
 where id = ?;
+
+-- name: ChangeStatusByOrderID :exec
+update orders
+set product_status = 0
+where order_id = ?

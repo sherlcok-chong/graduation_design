@@ -156,3 +156,17 @@ func (q *Queries) ReadMessage(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, readMessage, id)
 	return err
 }
+
+const readUserMessage = `-- name: ReadUserMessage :exec
+update message set is_read = true where fid = ? and tid = ?
+`
+
+type ReadUserMessageParams struct {
+	Fid int64 `json:"fid"`
+	Tid int64 `json:"tid"`
+}
+
+func (q *Queries) ReadUserMessage(ctx context.Context, arg ReadUserMessageParams) error {
+	_, err := q.db.ExecContext(ctx, readUserMessage, arg.Fid, arg.Tid)
+	return err
+}

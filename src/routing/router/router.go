@@ -23,9 +23,9 @@ func NewRouter() *gin.Engine {
 			global.Logger.Info("ping", mid.ErrLogMsg(c)...)
 			rly.Reply(nil, "pang")
 		})
-		//root.GET("/alipay", v1.Group.Alipay.PayUrl)
-		//root.GET("/callback", v1.Group.Alipay.Callback)
-		//root.POST("/notify", v1.Group.Alipay.Notify)
+		root.GET("/alipay", v1.Group.Alipay.PayUrl).Use(mid.Cors())
+		root.GET("/callback", v1.Group.Alipay.Callback)
+		root.POST("/notify", v1.Group.Alipay.Notify)
 		rg := routing.Group
 		rg.Email.Init(root)
 		rg.User.Init(root)

@@ -13,5 +13,6 @@ func (msg) Init(router *gin.RouterGroup) {
 	mg := router.Group("msg", mid.MustUser())
 	{
 		mg.GET("not_read", v1.Group.Ws.GetNotReadMsg)
+		mg.GET("read_msg", v1.Group.Ws.ReadAllMessage)
 	}
 }

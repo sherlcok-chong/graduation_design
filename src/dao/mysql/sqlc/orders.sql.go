@@ -7,35 +7,47 @@ package db
 
 import (
 	"context"
+	"time"
 )
 
+const changeStatusByOrderID = `-- name: ChangeStatusByOrderID :exec
+update orders
+set product_status = 0
+where order_id = ?
+`
+
+func (q *Queries) ChangeStatusByOrderID(ctx context.Context, orderID string) error {
+	_, err := q.db.ExecContext(ctx, changeStatusByOrderID, orderID)
+	return err
+}
+
 const createOrder = `-- name: CreateOrder :exec
-insert into orders (lend_user_id, borrow_user_id, product_id, unit_price,
-                    total_price, completion_time, product_status,
+insert into orders (lend_user_id, order_id, borrow_user_id, product_id, unit_price,
+                    total_price, product_status,
                     start_time, end_time)
 values (?, ?, ?, ?, ?, ?, ?, ?, ?)
 `
 
 type CreateOrderParams struct {
-	LendUserID     int64  `json:"lend_user_id"`
-	BorrowUserID   int64  `json:"borrow_user_id"`
-	ProductID      int64  `json:"product_id"`
-	UnitPrice      string `json:"unit_price"`
-	TotalPrice     string `json:"total_price"`
-	CompletionTime string `json:"completion_time"`
-	ProductStatus  int32  `json:"product_status"`
-	StartTime      string `json:"start_time"`
-	EndTime        string `json:"end_time"`
+	LendUserID    int64     `json:"lend_user_id"`
+	OrderID       string    `json:"order_id"`
+	BorrowUserID  int64     `json:"borrow_user_id"`
+	ProductID     int64     `json:"product_id"`
+	UnitPrice     string    `json:"unit_price"`
+	TotalPrice    string    `json:"total_price"`
+	ProductStatus int32     `json:"product_status"`
+	StartTime     time.Time `json:"start_time"`
+	EndTime       time.Time `json:"end_time"`
 }
 
 func (q *Queries) CreateOrder(ctx context.Context, arg CreateOrderParams) error {
 	_, err := q.db.ExecContext(ctx, createOrder,
 		arg.LendUserID,
+		arg.OrderID,
 		arg.BorrowUserID,
 		arg.ProductID,
 		arg.UnitPrice,
 		arg.TotalPrice,
-		arg.CompletionTime,
 		arg.ProductStatus,
 		arg.StartTime,
 		arg.EndTime,
@@ -77,7 +89,7 @@ func (q *Queries) EnsureRec(ctx context.Context, id int64) error {
 }
 
 const getOrderDetail = `-- name: GetOrderDetail :one
-select id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
+select id, order_id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
 from orders
 where id = ?
 `
@@ -87,6 +99,7 @@ func (q *Queries) GetOrderDetail(ctx context.Context, id int64) (Order, error) {
 	var i Order
 	err := row.Scan(
 		&i.ID,
+		&i.OrderID,
 		&i.LendUserID,
 		&i.BorrowUserID,
 		&i.ProductID,
@@ -108,8 +121,8 @@ where product_id = ?
 `
 
 type GetProductNotFreeTimeRow struct {
-	StartTime string `json:"start_time"`
-	EndTime   string `json:"end_time"`
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
 }
 
 func (q *Queries) GetProductNotFreeTime(ctx context.Context, productID int64) ([]GetProductNotFreeTimeRow, error) {
@@ -136,7 +149,7 @@ func (q *Queries) GetProductNotFreeTime(ctx context.Context, productID int64) ([
 }
 
 const getUserBorrowOrder = `-- name: GetUserBorrowOrder :many
-select id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
+select id, order_id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
 from orders
 where lend_user_id = ?
 `
@@ -152,6 +165,7 @@ func (q *Queries) GetUserBorrowOrder(ctx context.Context, lendUserID int64) ([]O
 		var i Order
 		if err := rows.Scan(
 			&i.ID,
+			&i.OrderID,
 			&i.LendUserID,
 			&i.BorrowUserID,
 			&i.ProductID,
@@ -177,7 +191,7 @@ func (q *Queries) GetUserBorrowOrder(ctx context.Context, lendUserID int64) ([]O
 }
 
 const getUserLendOrder = `-- name: GetUserLendOrder :many
-select id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
+select id, order_id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
 from orders
 where borrow_user_id = ?
 `
@@ -193,6 +207,7 @@ func (q *Queries) GetUserLendOrder(ctx context.Context, borrowUserID int64) ([]O
 		var i Order
 		if err := rows.Scan(
 			&i.ID,
+			&i.OrderID,
 			&i.LendUserID,
 			&i.BorrowUserID,
 			&i.ProductID,

@@ -12,6 +12,7 @@ func (alipay) Init() {
 	global.AliPayClient = pay.Init(pay.Config{
 		KAppID:               global.PvSettings.AliPay.KAppID,
 		KPrivateKey:          global.PvSettings.AliPay.KPrivateKey,
+		AppPublicKey:         global.PvSettings.AliPay.AppPublicKey,
 		IsProduction:         global.PvSettings.AliPay.IsProduction,
 		AppPublicCertPath:    global.PvSettings.AliPay.AppPublicCertPath,
 		AliPayRootCertPath:   global.PvSettings.AliPay.AliPayRootCertPath,

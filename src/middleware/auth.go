@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"GraduationDesign/src/dao"
+	"context"
 	"github.com/0RAJA/Rutils/pkg/app"
 	"net/http"
 	"strings"
@@ -102,4 +103,31 @@ func MustUser() gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+func MustAccount(accessToken string) (*model.Token, errcode.Err) {
+	payload, _, merr := ParseHeader(accessToken)
+	if merr != nil {
+		return nil, merr
+	}
+	content := &model.Content{}
+	if err := content.Unmarshal(payload.Content); err != nil {
+		return nil, myerr.AuthenticationFailed
+	}
+	if content.Type != model.UserToken {
+		return nil, myerr.AuthenticationFailed
+	}
+	ok, err := dao.Group.Mysql.ExistsUserByID(context.Background(), content.ID)
+	if err != nil {
+		global.Logger.Error(err.Error())
+		return nil, errcode.ErrServer
+	}
+	if !ok {
+		return nil, myerr.UserNotFound
+	}
+	return &model.Token{
+		AccessToken: accessToken,
+		Payload:     payload,
+		Content:     content,
+	}, nil
 }
