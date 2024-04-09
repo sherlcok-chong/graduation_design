@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+    // 根据支付状态进行业务处理
+    if (paymentStatus === 'TRADE_SUCCESS') {
+        // 支付成功逻辑，更新订单状态等
+
+        // 生成跳转页面的HTML内容
+        const html = `
+      <html>
+        <head>
+          <meta http-equiv="refresh" content="3;url=http:localhost:3000/main/person">
+        </head>
+        <body>
+          <h1>支付成功！正在跳转回原来的页面...</h1>
+        </body>
+      </html>
+    `;
+
+        res.send(html);
+    } else {
+        // 支付失败逻辑
+
+        // 生成跳转页面的HTML内容
+        const html = `
+      <html>
+        <head>
+          <meta http-equiv="refresh" content="3;url=http:localhost:3000/main/person">
+        </head>
+        <body>
+          <h1>支付失败！正在跳转回原来的页面...</h1>
+        </body>
+      </html>
+    `;
+
+        res.send(html);
+    }
+</script>
+</html>

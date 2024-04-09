@@ -73,6 +73,7 @@ func (client *Client) Pay(order Order) (payUrl string, err error) {
 	var p = alipay.TradePagePay{}
 	p.NotifyURL = client.notifyURL
 	p.ReturnURL = client.returnURL
+	fmt.Println(client.returnURL)
 	p.Subject = order.Subject
 	p.OutTradeNo = order.ID
 	p.TotalAmount = strconv.FormatFloat(float64(order.TotalAmount), 'f', 2, 32)

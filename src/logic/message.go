@@ -21,6 +21,13 @@ func (ws) GetNotReadMsg(c *gin.Context, userID int64) ([]chat.NotReadMsg, errcod
 	}
 	rsp := make([]chat.NotReadMsg, 0, len(tids))
 	for _, v := range tids {
+		data, _ := dao.Group.Mysql.GetNotReadMsgByUserID(c, db.GetNotReadMsgByUserIDParams{
+			Tid: userID,
+			Fid: v,
+		})
+		if len(data) == 0 {
+			continue
+		}
 		userInfo, err := dao.Group.Mysql.GetUserInfoById(c, v)
 		if err != nil {
 			global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
@@ -32,10 +39,7 @@ func (ws) GetNotReadMsg(c *gin.Context, userID int64) ([]chat.NotReadMsg, errcod
 			Avatar:   userInfo.Avatar,
 			Msg:      nil,
 		}
-		data, err := dao.Group.Mysql.GetNotReadMsgByUserID(c, db.GetNotReadMsgByUserIDParams{
-			Tid: userID,
-			Fid: v,
-		})
+
 		r.Msg = make([]chat.MsgSend, 0, len(data))
 		for _, v := range data {
 			var typ int64
@@ -50,6 +54,10 @@ func (ws) GetNotReadMsg(c *gin.Context, userID int64) ([]chat.NotReadMsg, errcod
 				Text:    v.Texts,
 				IsRead:  v.IsRead,
 			}
+			dao.Group.Mysql.ReadUserMessage(c, db.ReadUserMessageParams{
+				Fid: v.Fid,
+				Tid: v.Tid,
+			})
 			r.Msg = append(r.Msg, t)
 		}
 		rsp = append(rsp, r)

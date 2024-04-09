@@ -120,10 +120,8 @@ func (ws) Broadcast() {
 			break
 		}
 		msg := &chat.MsgSend{}
-		fmt.Println(string(v))
 		if err := json.Unmarshal(v, msg); err != nil {
 			global.Logger.Error(err.Error())
-			fmt.Println(string(v))
 			continue
 		}
 
@@ -152,7 +150,6 @@ func (ws) Broadcast() {
 				}
 				userID = token.Content.ID
 				userCli[userID] = clf.ID
-				fmt.Println(userID)
 				clf.sendConnectMsg("check token success")
 			} else if msg.MsgType == 3 {
 				clf.sendConnectMsg("ok")

@@ -8,6 +8,7 @@ import (
 	"GraduationDesign/src/model/reply"
 	"GraduationDesign/src/model/request"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
+	"github.com/0RAJA/Rutils/pkg/times"
 	"github.com/gin-gonic/gin"
 )
 
@@ -49,10 +50,30 @@ func (order) GetOrderList(c *gin.Context, userID int64) ([]reply.Order, errcode.
 			BorrowUserID: v.BorrowUserID,
 			UintPrice:    v.UnitPrice,
 			TotalPrice:   v.TotalPrice,
-			StartTime:    v.StartTime,
-			EndTime:      v.EndTime,
 			Status:       v.ProductStatus,
 		}
+		d, err := dao.Group.Mysql.GetUserInfoById(c, v.LendUserID)
+		if err != nil {
+			return nil, errcode.ErrServer
+		}
+		r.LendUserName = d.Name
+		d, err = dao.Group.Mysql.GetUserInfoById(c, v.BorrowUserID)
+		if err != nil {
+			return nil, errcode.ErrServer
+		}
+		r.BorrowUserName = d.Name
+		med, err := dao.Group.Mysql.GetProductFirstMedia(c, v.ProductID)
+		if err != nil {
+			return nil, errcode.ErrServer
+		}
+		id := med.(int64)
+		media, err := dao.Group.Mysql.GetFileByID(c, id)
+		if err != nil {
+			return nil, errcode.ErrServer
+		}
+		r.ProductMedia = media
+		r.StartTime = times.ParseDataToStr(v.StartTime)
+		r.EndTime = times.ParseDataToStr(v.EndTime)
 		rsp = append(rsp, r)
 	}
 	return rsp, nil
@@ -68,15 +89,15 @@ func (order) LendBusyTime(c *gin.Context, pid int64) (reply.BusyTime, errcode.Er
 		ID:    pid,
 		Times: nil,
 	}
-	times := make([]reply.LendTime, 0, len(data))
+	tim := make([]reply.LendTime, 0, len(data))
 	for _, v := range data {
 		t := reply.LendTime{
-			Start: v.StartTime,
-			End:   v.EndTime,
+			Start: times.ParseDataToStr(v.StartTime),
+			End:   times.ParseDataToStr(v.EndTime),
 		}
-		times = append(times, t)
+		tim = append(tim, t)
 	}
-	rsp.Times = times
+	rsp.Times = tim
 	return rsp, nil
 }
 func (order) ChangeOrderStatus(c *gin.Context, req *request.ChangeOrderStatus) errcode.Err {

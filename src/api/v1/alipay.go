@@ -5,7 +5,6 @@ import (
 	"GraduationDesign/src/global"
 	"GraduationDesign/src/model/request"
 	pay "GraduationDesign/src/pkg/alipay"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -22,7 +21,6 @@ func (alipay) PayUrl(c *gin.Context) {
 		c.JSON(http.StatusOK, "系统错误")
 		return
 	}
-	fmt.Println(p)
 	url, err := global.AliPayClient.Pay(pay.Order{
 		ID:          p.OrderID,
 		Subject:     "闲置租赁:" + p.OrderID,
@@ -45,7 +43,7 @@ func (alipay) Callback(c *gin.Context) {
 		c.JSON(http.StatusOK, "校验失败")
 		return
 	}
-	c.JSON(http.StatusOK, return_url)
+	c.Redirect(http.StatusFound, "http://8.137.9.66:3000/main/person")
 }
 
 func (alipay) Notify(c *gin.Context) {
@@ -58,5 +56,8 @@ func (alipay) Notify(c *gin.Context) {
 	log.Println("支付成功:" + orderID)
 	// 做自己的事
 	err = dao.Group.Mysql.ChangeStatusByOrderID(c, orderID)
-	global.Logger.Error(err.Error())
+	if err != nil {
+		global.Logger.Error(err.Error())
+	}
+	c.Redirect(http.StatusFound, "http://8.137.9.66:3000/main/person")
 }
