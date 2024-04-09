@@ -235,3 +235,35 @@ func (product) GetProductBusyTime(c *gin.Context) {
 	rsp, err := logic.Group.Order.LendBusyTime(c, pID.ID)
 	rly.Reply(err, rsp)
 }
+
+func (product) SearchTags(c *gin.Context) {
+	rly := app.NewResponse(c)
+	tag := &request.SearchTags{}
+	if err := c.ShouldBindQuery(tag); err != nil {
+		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
+		return
+	}
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
+	}
+	rsp, err := logic.Group.Product.SearchTag(c, tag.TagID)
+	rly.Reply(err, rsp)
+}
+
+func (product) SearchText(c *gin.Context) {
+	rly := app.NewResponse(c)
+	text := &request.SearchText{}
+	if err := c.ShouldBindQuery(text); err != nil {
+		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
+		return
+	}
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
+	}
+	rsp, err := logic.Group.Product.SearchText(c, text.Text)
+	rly.Reply(err, rsp)
+}

@@ -232,6 +232,53 @@ func (product) GetLikeList(c *gin.Context, uID int64) ([]reply.ProductInfo, errc
 	}
 	return rsp, nil
 }
+
+func (product) SearchTag(c *gin.Context, tagID int64) (reply.SearchTags, errcode.Err) {
+	exsit, err := dao.Group.Mysql.ExistsTags(c, tagID)
+	if err != nil || !exsit {
+		return reply.SearchTags{}, errcode.ErrServer
+	}
+	data, err := dao.Group.Mysql.GetTagsProduct(c, tagID)
+	rsp := make([]reply.ProductInfo, 0, len(data))
+	for _, v := range data {
+		t := reply.ProductInfo{
+			ID:       v.CommodityID,
+			Name:     v.CommodityName,
+			Price:    v.CommodityPrice,
+			Media:    v.MediaUrl,
+			UserName: v.Username,
+			Avatar:   v.Avatar,
+			IsFree:   v.IsFree,
+		}
+		rsp = append(rsp, t)
+	}
+	tagname, _ := dao.Group.Mysql.GetTagName(c, tagID)
+	return reply.SearchTags{
+		TagName:     tagname,
+		Commodities: rsp,
+	}, nil
+}
+
+func (product) SearchText(c *gin.Context, text string) ([]reply.ProductInfo, errcode.Err) {
+	data, err := dao.Group.Mysql.SearchLikeText(c, text)
+	if err != nil {
+		return nil, errcode.ErrServer
+	}
+	rsp := make([]reply.ProductInfo, 0, len(data))
+	for _, v := range data {
+		t := reply.ProductInfo{
+			ID:       v.CommodityID,
+			Name:     v.CommodityName,
+			Price:    v.CommodityPrice,
+			Media:    v.MediaUrl,
+			UserName: v.Username,
+			Avatar:   v.Avatar,
+			IsFree:   v.IsFree,
+		}
+		rsp = append(rsp, t)
+	}
+	return rsp, nil
+}
 func deleteProductFileWithOSS(c *gin.Context, ID int64) error {
 	data, err := dao.Group.Mysql.GetProductMediaId(c, ID)
 	if err != nil {

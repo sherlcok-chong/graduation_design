@@ -32,6 +32,7 @@ type Querier interface {
 	EnsureExpress(ctx context.Context, id int64) error
 	EnsureRec(ctx context.Context, id int64) error
 	ExistEmail(ctx context.Context, email string) (bool, error)
+	ExistsTags(ctx context.Context, tagID int64) (bool, error)
 	ExistsUserByID(ctx context.Context, id int64) (bool, error)
 	GetAllTags(ctx context.Context) ([]Tag, error)
 	GetCommentMedia(ctx context.Context, commentID int64) ([]int64, error)
@@ -56,6 +57,8 @@ type Querier interface {
 	GetProductMediaId(ctx context.Context, commodityID int64) ([]int64, error)
 	GetProductNotFreeTime(ctx context.Context, productID int64) ([]GetProductNotFreeTimeRow, error)
 	GetProductTags(ctx context.Context, productID int64) ([]Tag, error)
+	GetTagName(ctx context.Context, tagID int64) (string, error)
+	GetTagsProduct(ctx context.Context, tagID int64) ([]GetTagsProductRow, error)
 	GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (string, error)
 	GetUserAvatarByID(ctx context.Context, id int64) (string, error)
 	GetUserBorrowOrder(ctx context.Context, lendUserID int64) ([]Order, error)
@@ -70,6 +73,7 @@ type Querier interface {
 	LikeProduct(ctx context.Context, arg LikeProductParams) error
 	ReadMessage(ctx context.Context, id int64) error
 	ReadUserMessage(ctx context.Context, arg ReadUserMessageParams) error
+	SearchLikeText(ctx context.Context, concat interface{}) ([]SearchLikeTextRow, error)
 	UpdateOrderExpress(ctx context.Context, arg UpdateOrderExpressParams) error
 	UpdateProduct(ctx context.Context, arg UpdateProductParams) error
 	UpdateUserAvatar(ctx context.Context, arg UpdateUserAvatarParams) error

@@ -46,3 +46,11 @@ type DeleteComment struct {
 type GetProductComment struct {
 	ID int64 `form:"id" binding:"required"`
 }
+
+type SearchTags struct {
+	TagID int64 `form:"tag_id"`
+}
+
+type SearchText struct {
+	Text string `form:"text"`
+}

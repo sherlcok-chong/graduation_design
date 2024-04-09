@@ -353,6 +353,64 @@ func (q *Queries) GetUserProductInfo(ctx context.Context, userID int64) ([]GetUs
 	return items, nil
 }
 
+const searchLikeText = `-- name: SearchLikeText :many
+SELECT
+    c.id AS commodity_id,
+    c.name AS commodity_name,
+    c.price AS commodity_price,
+    (SELECT f.url FROM file f INNER JOIN commodity_media cm ON f.id = cm.file_id WHERE cm.commodity_id = c.id LIMIT 1) AS media_url,
+    u.name AS username,
+    u.avatar,
+    c.is_free
+FROM
+    commodity c
+        INNER JOIN
+    user u ON c.user_id = u.id
+WHERE
+    c.name LIKE CONCAT('%',?,'%')
+`
+
+type SearchLikeTextRow struct {
+	CommodityID    int64  `json:"commodity_id"`
+	CommodityName  string `json:"commodity_name"`
+	CommodityPrice string `json:"commodity_price"`
+	MediaUrl       string `json:"media_url"`
+	Username       string `json:"username"`
+	Avatar         string `json:"avatar"`
+	IsFree         bool   `json:"is_free"`
+}
+
+func (q *Queries) SearchLikeText(ctx context.Context, concat interface{}) ([]SearchLikeTextRow, error) {
+	rows, err := q.db.QueryContext(ctx, searchLikeText, concat)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SearchLikeTextRow{}
+	for rows.Next() {
+		var i SearchLikeTextRow
+		if err := rows.Scan(
+			&i.CommodityID,
+			&i.CommodityName,
+			&i.CommodityPrice,
+			&i.MediaUrl,
+			&i.Username,
+			&i.Avatar,
+			&i.IsFree,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateProduct = `-- name: UpdateProduct :exec
 update commodity
 set name    = ?,

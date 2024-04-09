@@ -28,3 +28,8 @@ type Tags struct {
 	ID  int64  `json:"id"`
 	Tag string `json:"tag"`
 }
+
+type SearchTags struct {
+	TagName     string
+	Commodities []ProductInfo
+}

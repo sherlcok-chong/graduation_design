@@ -25,5 +25,11 @@ func (product) Init(router *gin.RouterGroup) {
 		pg.POST("like_status", v1.Group.Product.ChangeLikeProduct)
 		pg.GET("like_list", v1.Group.Product.GetLikeList)
 		pg.GET("busy_time", v1.Group.Product.GetProductBusyTime)
+		scGroup := pg.Group("search")
+		{
+			scGroup.GET("tag", v1.Group.Product.SearchTags)
+			scGroup.GET("text", v1.Group.Product.SearchText)
+		}
+
 	}
 }

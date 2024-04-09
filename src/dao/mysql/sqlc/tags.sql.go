@@ -34,6 +34,17 @@ func (q *Queries) CreateTag(ctx context.Context, tagName string) error {
 	return err
 }
 
+const existsTags = `-- name: ExistsTags :one
+select exists(select 1 from tags where tag_id = ?)
+`
+
+func (q *Queries) ExistsTags(ctx context.Context, tagID int64) (bool, error) {
+	row := q.db.QueryRowContext(ctx, existsTags, tagID)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const getAllTags = `-- name: GetAllTags :many
 select tag_id, tag_name
 from tags
@@ -89,6 +100,80 @@ func (q *Queries) GetProductTags(ctx context.Context, productID int64) ([]Tag, e
 	for rows.Next() {
 		var i Tag
 		if err := rows.Scan(&i.TagID, &i.TagName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTagName = `-- name: GetTagName :one
+select tag_name
+from tags
+where tag_id = ?
+`
+
+func (q *Queries) GetTagName(ctx context.Context, tagID int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getTagName, tagID)
+	var tag_name string
+	err := row.Scan(&tag_name)
+	return tag_name, err
+}
+
+const getTagsProduct = `-- name: GetTagsProduct :many
+SELECT c.id      AS commodity_id,
+       c.name    AS commodity_name,
+       c.price   AS commodity_price,
+       (SELECT f.url
+        FROM file f
+                 INNER JOIN commodity_media cm ON f.id = cm.file_id
+        WHERE cm.commodity_id = c.id
+        LIMIT 1) AS media_url,
+       u.name    AS username,
+       u.avatar,
+       c.is_free
+FROM commodity c
+         INNER JOIN
+     product_tags pt ON c.id = pt.product_id
+         INNER JOIN
+     user u ON c.user_id = u.id
+WHERE pt.tag_id = ?
+`
+
+type GetTagsProductRow struct {
+	CommodityID    int64  `json:"commodity_id"`
+	CommodityName  string `json:"commodity_name"`
+	CommodityPrice string `json:"commodity_price"`
+	MediaUrl       string `json:"media_url"`
+	Username       string `json:"username"`
+	Avatar         string `json:"avatar"`
+	IsFree         bool   `json:"is_free"`
+}
+
+func (q *Queries) GetTagsProduct(ctx context.Context, tagID int64) ([]GetTagsProductRow, error) {
+	rows, err := q.db.QueryContext(ctx, getTagsProduct, tagID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetTagsProductRow{}
+	for rows.Next() {
+		var i GetTagsProductRow
+		if err := rows.Scan(
+			&i.CommodityID,
+			&i.CommodityName,
+			&i.CommodityPrice,
+			&i.MediaUrl,
+			&i.Username,
+			&i.Avatar,
+			&i.IsFree,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
