@@ -60,3 +60,19 @@ func (orders) ChangeOrderStatus(c *gin.Context) {
 	err := logic.Group.Order.ChangeOrderStatus(c, req)
 	rly.Reply(err, nil)
 }
+
+func (orders) QueryExpress(c *gin.Context) {
+	rly := app.NewResponse(c)
+	req := &request.OrderID{}
+	if err := c.ShouldBindQuery(req); err != nil {
+		rly.Reply(errcode.ErrParamsNotValid.WithDetails(err.Error()))
+		return
+	}
+	content, ok := mid.GetTokenContent(c)
+	if !ok || content.Type != model.UserToken {
+		rly.Reply(myerr.AuthNotExist)
+		return
+	}
+	rsp, err := logic.Group.Order.QueryExpress(c, req.ID)
+	rly.Reply(err, rsp)
+}

@@ -12,12 +12,12 @@ where id = ?;
 -- name: GetUserLendOrder :many
 select *
 from orders
-where borrow_user_id = ?;
+where borrow_user_id = ? and product_status != -1;
 
 -- name: GetUserBorrowOrder :many
 select *
 from orders
-where lend_user_id = ?;
+where lend_user_id = ? and  product_status != -1;
 
 -- name: GetProductNotFreeTime :many
 select start_time, end_time
@@ -48,4 +48,8 @@ where id = ?;
 -- name: ChangeStatusByOrderID :exec
 update orders
 set product_status = 0
-where order_id = ?
+where order_id = ?;
+
+-- name: GetOrderExpressNum :one
+select express_number
+from orders where id = ?;

@@ -24,6 +24,7 @@ type Private struct {
 	Token     Token     `yaml:"AccessToken"`
 	AliyunOSS AliyunOSS `yaml:"AliyunOSS"`
 	AliPay    AliPay    `yaml:"AliPay"`
+	KDN       KDN       `yaml:"KDN"`
 }
 
 type Token struct {
@@ -163,4 +164,9 @@ type AliPay struct {
 	ReturnURL            string `yaml:"ReturnURL"`
 	IsProduction         bool   `yaml:"IsProduction"`
 	KAppID               string `yaml:"kAppID"`
+}
+
+type KDN struct {
+	EBusinessID string `yaml:"EBusinessID"`
+	AppKey      string `yaml:"AppKey"`
 }

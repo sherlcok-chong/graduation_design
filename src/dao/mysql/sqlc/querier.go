@@ -23,6 +23,7 @@ type Querier interface {
 	CreateTag(ctx context.Context, tagName string) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	DeleteCommentID(ctx context.Context, id int64) error
+	DeleteCommentMedia(ctx context.Context, commentID int64) error
 	DeleteFileByID(ctx context.Context, id int64) error
 	DeleteFileMedia(ctx context.Context, commodityID int64) error
 	DeleteLike(ctx context.Context, productID int64) error
@@ -48,15 +49,17 @@ type Querier interface {
 	GetMessageByUserID(ctx context.Context, fid int64) ([]Message, error)
 	GetNotReadMsgByUserID(ctx context.Context, arg GetNotReadMsgByUserIDParams) ([]Message, error)
 	GetOrderDetail(ctx context.Context, id int64) (Order, error)
+	GetOrderExpressNum(ctx context.Context, id int64) (string, error)
 	GetProductByID(ctx context.Context, id int64) (Commodity, error)
 	GetProductComment(ctx context.Context, productID int64) ([]Comment, error)
 	GetProductFirstMedia(ctx context.Context, commodityID int64) (interface{}, error)
-	GetProductInfo(ctx context.Context, offset int32) ([]GetProductInfoRow, error)
+	GetProductInfo(ctx context.Context, arg GetProductInfoParams) ([]GetProductInfoRow, error)
 	GetProductLike(ctx context.Context, id int64) (GetProductLikeRow, error)
 	GetProductMedia(ctx context.Context, id int64) (string, error)
 	GetProductMediaId(ctx context.Context, commodityID int64) ([]int64, error)
 	GetProductNotFreeTime(ctx context.Context, productID int64) ([]GetProductNotFreeTimeRow, error)
 	GetProductTags(ctx context.Context, productID int64) ([]Tag, error)
+	GetProductTagsID(ctx context.Context, productID int64) ([]int64, error)
 	GetTagName(ctx context.Context, tagID int64) (string, error)
 	GetTagsProduct(ctx context.Context, tagID int64) ([]GetTagsProductRow, error)
 	GetUserAvatar(ctx context.Context, arg GetUserAvatarParams) (string, error)

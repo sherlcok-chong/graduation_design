@@ -104,13 +104,16 @@ func (store *SqlStore) GetUserNeedProductTx(c *gin.Context, userId int64) ([]rep
 		return err
 	})
 }
-func (store *SqlStore) GetProductInfoTx(c *gin.Context, offset int32) ([]reply.ProductInfo, error) {
+func (store *SqlStore) GetProductInfoTx(c *gin.Context, offset, limit int32) ([]reply.ProductInfo, error) {
 	ps := make([]reply.ProductInfo, 0, 10)
 	return ps, store.execTx(c, func(queries *db.Queries) error {
 		var err error
 		var data []db.GetProductInfoRow
 		err = tool.DoThat(err, func() error {
-			data, err = queries.GetProductInfo(c, offset)
+			data, err = queries.GetProductInfo(c, db.GetProductInfoParams{
+				Limit:  limit,
+				Offset: offset,
+			})
 			if err != nil {
 				return err
 			}
@@ -184,7 +187,7 @@ func (store *SqlStore) GetProductDetailsTX(c *gin.Context, pID, uID int64) (repl
 		if err != nil {
 			return err
 		}
-		t := make([]reply.Tags, len(tags))
+		t := make([]reply.Tags, 0, len(tags))
 		for _, v := range tags {
 			d := reply.Tags{
 				ID:  v.TagID,

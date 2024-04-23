@@ -15,6 +15,7 @@ func (order) Init(router *gin.RouterGroup) {
 		og.POST("add", v1.Group.Orders.CreatOrder)
 		og.POST("change_status", v1.Group.Orders.ChangeOrderStatus)
 		og.GET("list", v1.Group.Orders.GetOrderList)
+		og.GET("express", v1.Group.Orders.QueryExpress)
 
 	}
 }

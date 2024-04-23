@@ -34,8 +34,8 @@ SELECT LAST_INSERT_ID();
 select id, price, name, user_id
 from commodity
 where is_lend = 1
-  and is_free = 1
-limit 10 offset ?;
+  and is_free = 0
+limit ? offset ?;
 
 -- name: GetProductFirstMedia :one
 select MIN(file_id)

@@ -14,6 +14,11 @@ select *
 from tags
 where tag_id in (select tag_id from product_tags where product_id = ?);
 
+-- name: GetProductTagsID :many
+select tag_id
+from tags
+where tag_id in (select tag_id from product_tags where product_id = ?);
+
 -- name: GetAllTags :many
 select *
 from tags;

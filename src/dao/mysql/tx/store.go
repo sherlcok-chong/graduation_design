@@ -17,7 +17,7 @@ type TXer interface {
 	// GetUserNeedProductTx 需求
 	GetUserNeedProductTx(c *gin.Context, userId int64) ([]reply.ProductInfo, error)
 	// GetProductInfoTx 需求
-	GetProductInfoTx(c *gin.Context, offset int32) ([]reply.ProductInfo, error)
+	GetProductInfoTx(c *gin.Context, offset, limit int32) ([]reply.ProductInfo, error)
 	// GetProductDetailsTX 详情
 	GetProductDetailsTX(c *gin.Context, pid, uID int64) (reply.Product, error)
 }

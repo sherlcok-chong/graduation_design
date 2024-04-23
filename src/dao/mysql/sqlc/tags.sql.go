@@ -113,6 +113,35 @@ func (q *Queries) GetProductTags(ctx context.Context, productID int64) ([]Tag, e
 	return items, nil
 }
 
+const getProductTagsID = `-- name: GetProductTagsID :many
+select tag_id
+from tags
+where tag_id in (select tag_id from product_tags where product_id = ?)
+`
+
+func (q *Queries) GetProductTagsID(ctx context.Context, productID int64) ([]int64, error) {
+	rows, err := q.db.QueryContext(ctx, getProductTagsID, productID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []int64{}
+	for rows.Next() {
+		var tag_id int64
+		if err := rows.Scan(&tag_id); err != nil {
+			return nil, err
+		}
+		items = append(items, tag_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getTagName = `-- name: GetTagName :one
 select tag_name
 from tags

@@ -14,6 +14,7 @@ type Product struct {
 
 type ProductInfo struct {
 	Offset int32 `form:"offset" json:"offset"`
+	Limit  int32 `form:"limit" json:"limit"`
 }
 
 type ProductDetails struct {

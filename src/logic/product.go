@@ -10,6 +10,7 @@ import (
 	"GraduationDesign/src/myerr"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
 	"github.com/gin-gonic/gin"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -88,14 +89,60 @@ func (product) GetProductDetails(c *gin.Context, pId, uID int64) (reply.Product,
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return reply.Product{}, errcode.ErrServer
 	}
+	ts := make([]int64, len(data.Tags))
+	for i := range data.Tags {
+		ts[i] = data.Tags[i].ID
+	}
+	err = AddRe(uID, ts, 1)
+	if err != nil {
+		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+		return reply.Product{}, errcode.ErrServer
+	}
 	return data, nil
 }
 
-func (product) GetProductInfo(c *gin.Context, offset int32) ([]reply.ProductInfo, errcode.Err) {
-	data, err := dao.Group.Mysql.GetProductInfoTx(c, offset)
+func (product) GetProductInfo(c *gin.Context, offset, limit int32, uid int64) ([]reply.ProductInfo, errcode.Err) {
+	data, err := dao.Group.Mysql.GetProductInfoTx(c, offset, limit)
+	if offset == 0 {
+		suid := global.Re.FindMostSimilarUser(uid)
+		d, _ := product{}.GetLikeList(c, suid)
+		data = append(d, data...)
+		tags, err := recommendItemsToUser(uid)
+		if err != nil {
+			return nil, errcode.ErrServer
+		}
+		rsp := make([]reply.ProductInfo, 0, len(data))
+		for _, v := range tags {
+			dd, err := dao.Group.Mysql.GetTagsProduct(c, int64(v))
+			if err != nil {
+				return nil, errcode.ErrServer
+			}
+			for _, v := range dd {
+				t := reply.ProductInfo{
+					ID:       v.CommodityID,
+					Name:     v.CommodityName,
+					Price:    v.CommodityPrice,
+					Media:    v.MediaUrl,
+					UserName: v.Username,
+					Avatar:   v.Avatar,
+					IsFree:   v.IsFree,
+				}
+				rsp = append(rsp, t)
+			}
+			if len(rsp)+len(d) < int(limit) {
+				data = append(rsp, data...)
+			} else {
+				break
+			}
+		}
+	}
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return nil, errcode.ErrServer
+	}
+	data = removeDuplicates(data)
+	if len(data) > int(limit) {
+		data = data[:limit]
 	}
 	return data, nil
 }
@@ -106,6 +153,7 @@ func (product) DeleteProduct(c *gin.Context, productID, userID int64) errcode.Er
 	}
 	err := dao.Group.Mysql.DeleteProduct(c, productID)
 	err = dao.Group.Mysql.DeleteLike(c, productID)
+	err = dao.Group.Mysql.DeleteFileMedia(c, productID)
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return errcode.ErrServer
@@ -173,11 +221,23 @@ func (product) ChangeLikeProduct(c *gin.Context, uID, pID int64) errcode.Err {
 		return errcode.ErrServer
 	}
 	if f {
+		tgs, _ := dao.Group.Mysql.GetProductTagsID(c, pID)
+		err = AddRe(uID, tgs, -2)
+		if err != nil {
+			global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+			return errcode.ErrServer
+		}
 		err = dao.Group.Mysql.DisLikeProduct(c, db.DisLikeProductParams{
 			UserID:    uID,
 			ProductID: pID,
 		})
 	} else {
+		tgs, _ := dao.Group.Mysql.GetProductTagsID(c, pID)
+		err = AddRe(uID, tgs, 2)
+		if err != nil {
+			global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
+			return errcode.ErrServer
+		}
 		err = dao.Group.Mysql.LikeProduct(c, db.LikeProductParams{
 			UserID:    uID,
 			ProductID: pID,
@@ -233,9 +293,14 @@ func (product) GetLikeList(c *gin.Context, uID int64) ([]reply.ProductInfo, errc
 	return rsp, nil
 }
 
-func (product) SearchTag(c *gin.Context, tagID int64) (reply.SearchTags, errcode.Err) {
+func (product) SearchTag(c *gin.Context, tagID, uID int64) (reply.SearchTags, errcode.Err) {
 	exsit, err := dao.Group.Mysql.ExistsTags(c, tagID)
 	if err != nil || !exsit {
+		return reply.SearchTags{}, errcode.ErrServer
+	}
+	err = AddRe(uID, []int64{tagID}, 3)
+	if err != nil {
+		global.Logger.Error(err.Error())
 		return reply.SearchTags{}, errcode.ErrServer
 	}
 	data, err := dao.Group.Mysql.GetTagsProduct(c, tagID)
@@ -316,4 +381,91 @@ func checkSignP(c *gin.Context, cID, uID int64) errcode.Err {
 		return myerr.NoPermissionToDelete
 	}
 	return nil
+}
+
+func AddRe(userID int64, tagID []int64, rating float64) error {
+	for _, v := range tagID {
+		if _, ok := global.Re.UserRatings[userID]; !ok {
+			global.Re.UserRatings[userID] = make(map[int64]float64)
+		}
+		global.Re.UserRatings[userID][v] += rating
+		err := dao.Group.Redis.UpdateRating(userID, v, rating)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// 推荐物品给用户
+func recommendItemsToUser(targetUserID int64) ([]int, error) {
+	// 获取目标用户喜好的物品列表
+	targetUserPreferences, err := dao.Group.Redis.GetUserPreferences(targetUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 统计所有物品的相似度
+	itemSimilarities := make(map[int]float64)
+	for _, itemID1 := range targetUserPreferences {
+		for _, itemID2 := range targetUserPreferences {
+			// 不计算物品与自己的相似度
+			//if itemID1 != itemID2 {
+			// 计算物品1和物品2之间的相似度
+			similarity, err := dao.Group.Redis.CalculateItemSimilarity(itemID1, itemID2)
+			if err != nil {
+				return nil, err
+			}
+			// 对相似度进行累加
+			itemSimilarities[itemID2] += similarity
+			//}
+		}
+	}
+
+	// 对相似度进行排序
+	type itemSimilarity struct {
+		itemID     int
+		similarity float64
+	}
+	var sortedSimilarities []itemSimilarity
+	for itemID, similarity := range itemSimilarities {
+		sortedSimilarities = append(sortedSimilarities, itemSimilarity{itemID, similarity})
+	}
+	sort.Slice(sortedSimilarities, func(i, j int) bool {
+		// 按相似度从大到小排序
+		return sortedSimilarities[i].similarity > sortedSimilarities[j].similarity
+	})
+
+	// 从排序后的相似度中推荐物品给用户
+	recommendedItems := make([]int, 0)
+	for _, itemSimilarity := range sortedSimilarities {
+		itemID := itemSimilarity.itemID
+		recommendedItems = append(recommendedItems, itemID)
+	}
+
+	return recommendedItems, nil
+}
+
+// 判断切片中是否包含某个元素
+func contains(slice []int, item int) bool {
+	for _, element := range slice {
+		if element == item {
+			return true
+		}
+	}
+	return false
+}
+
+func removeDuplicates(nums []reply.ProductInfo) []reply.ProductInfo {
+	encountered := map[int64]bool{}
+	var result []reply.ProductInfo
+
+	for v := range nums {
+		if !encountered[nums[v].ID] {
+			encountered[nums[v].ID] = true
+			result = append(result, nums[v])
+		}
+	}
+
+	return result
 }

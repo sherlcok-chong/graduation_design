@@ -130,7 +130,7 @@ func (product) GetProductInfo(c *gin.Context) {
 		return
 	}
 	// 调用逻辑层获取产品信息
-	rsp, err := logic.Group.Product.GetProductInfo(c, p.Offset)
+	rsp, err := logic.Group.Product.GetProductInfo(c, p.Offset, p.Limit, content.ID)
 	// 返回处理结果
 	rly.Reply(err, rsp)
 }
@@ -248,7 +248,7 @@ func (product) SearchTags(c *gin.Context) {
 		rly.Reply(myerr.AuthNotExist)
 		return
 	}
-	rsp, err := logic.Group.Product.SearchTag(c, tag.TagID)
+	rsp, err := logic.Group.Product.SearchTag(c, tag.TagID, content.ID)
 	rly.Reply(err, rsp)
 }
 

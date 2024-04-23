@@ -29,6 +29,6 @@ where id = ?;
 -- name: GetExpiredFileID :many
 select id,file_key
 from file
-where id not in (select file_id from comment_media)
-   or id not in (select file_id from commodity_media);
-
+where (id not in (select file_id from comment_media)
+    or id not in (select file_id from commodity_media))
+  and filename not like '%avatar'

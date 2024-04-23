@@ -51,6 +51,17 @@ func (q *Queries) DeleteCommentID(ctx context.Context, id int64) error {
 	return err
 }
 
+const deleteCommentMedia = `-- name: DeleteCommentMedia :exec
+delete
+from comment_media
+where comment_id = ?
+`
+
+func (q *Queries) DeleteCommentMedia(ctx context.Context, commentID int64) error {
+	_, err := q.db.ExecContext(ctx, deleteCommentMedia, commentID)
+	return err
+}
+
 const getCommentMedia = `-- name: GetCommentMedia :many
 select file_id
 from comment_media

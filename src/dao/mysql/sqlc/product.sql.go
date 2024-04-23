@@ -121,9 +121,14 @@ const getProductInfo = `-- name: GetProductInfo :many
 select id, price, name, user_id
 from commodity
 where is_lend = 1
-  and is_free = 1
-limit 10 offset ?
+  and is_free = 0
+limit ? offset ?
 `
+
+type GetProductInfoParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
 
 type GetProductInfoRow struct {
 	ID     int64  `json:"id"`
@@ -132,8 +137,8 @@ type GetProductInfoRow struct {
 	UserID int64  `json:"user_id"`
 }
 
-func (q *Queries) GetProductInfo(ctx context.Context, offset int32) ([]GetProductInfoRow, error) {
-	rows, err := q.db.QueryContext(ctx, getProductInfo, offset)
+func (q *Queries) GetProductInfo(ctx context.Context, arg GetProductInfoParams) ([]GetProductInfoRow, error) {
+	rows, err := q.db.QueryContext(ctx, getProductInfo, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

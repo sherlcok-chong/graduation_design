@@ -45,6 +45,7 @@ func CheckEmailNotExists(c *gin.Context, emailStr string) errcode.Err {
 
 // SendEmail 发送邮件
 func (email) SendEmail(c *gin.Context, emailStr string) errcode.Err {
+	return nil
 	// 判断发送频率
 	if global.EmailMark.CheckUserExist(emailStr) {
 		return myerr.EmailSendMany

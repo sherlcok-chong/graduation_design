@@ -26,4 +26,9 @@ where comment_id = ?;
 -- name: GetCommentUser :one
 select user_id
 from comment
-where id = ?
+where id = ?;
+
+-- name: DeleteCommentMedia :exec
+delete
+from comment_media
+where comment_id = ?;

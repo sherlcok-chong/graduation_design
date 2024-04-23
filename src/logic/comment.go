@@ -53,6 +53,7 @@ func (comment) DeleteComment(c *gin.Context, cID, userID int64) errcode.Err {
 		return err
 	}
 	err := dao.Group.Mysql.DeleteCommentID(c, cID)
+	err = dao.Group.Mysql.DeleteCommentMedia(c, cID)
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return errcode.ErrServer

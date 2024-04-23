@@ -43,7 +43,7 @@ func (alipay) Callback(c *gin.Context) {
 		c.JSON(http.StatusOK, "校验失败")
 		return
 	}
-	c.Redirect(http.StatusFound, "http://8.137.9.66:3000/main/person")
+	c.Redirect(http.StatusFound, "http://8.137.9.66:3000/main/orders")
 }
 
 func (alipay) Notify(c *gin.Context) {
@@ -59,5 +59,5 @@ func (alipay) Notify(c *gin.Context) {
 	if err != nil {
 		global.Logger.Error(err.Error())
 	}
-	c.Redirect(http.StatusFound, "http://8.137.9.66:3000/main/person")
+	c.Redirect(http.StatusFound, "http://8.137.9.66:3000/main/orders")
 }

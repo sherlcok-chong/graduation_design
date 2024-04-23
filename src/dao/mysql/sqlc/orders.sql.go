@@ -114,6 +114,18 @@ func (q *Queries) GetOrderDetail(ctx context.Context, id int64) (Order, error) {
 	return i, err
 }
 
+const getOrderExpressNum = `-- name: GetOrderExpressNum :one
+select express_number
+from orders where id = ?
+`
+
+func (q *Queries) GetOrderExpressNum(ctx context.Context, id int64) (string, error) {
+	row := q.db.QueryRowContext(ctx, getOrderExpressNum, id)
+	var express_number string
+	err := row.Scan(&express_number)
+	return express_number, err
+}
+
 const getProductNotFreeTime = `-- name: GetProductNotFreeTime :many
 select start_time, end_time
 from orders
@@ -151,7 +163,7 @@ func (q *Queries) GetProductNotFreeTime(ctx context.Context, productID int64) ([
 const getUserBorrowOrder = `-- name: GetUserBorrowOrder :many
 select id, order_id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
 from orders
-where lend_user_id = ?
+where lend_user_id = ? and  product_status != -1
 `
 
 func (q *Queries) GetUserBorrowOrder(ctx context.Context, lendUserID int64) ([]Order, error) {
@@ -193,7 +205,7 @@ func (q *Queries) GetUserBorrowOrder(ctx context.Context, lendUserID int64) ([]O
 const getUserLendOrder = `-- name: GetUserLendOrder :many
 select id, order_id, lend_user_id, borrow_user_id, product_id, unit_price, total_price, completion_time, product_status, express_number, start_time, end_time
 from orders
-where borrow_user_id = ?
+where borrow_user_id = ? and product_status != -1
 `
 
 func (q *Queries) GetUserLendOrder(ctx context.Context, borrowUserID int64) ([]Order, error) {

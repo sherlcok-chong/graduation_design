@@ -22,3 +22,7 @@ type Pay struct {
 	OrderID string  `form:"order_id"`
 	Price   float32 `form:"price"`
 }
+
+type OrderID struct {
+	ID int64 `form:"id"`
+}

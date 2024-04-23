@@ -29,3 +29,8 @@ type LendTime struct {
 type OrderID struct {
 	ID string `json:"order_id"`
 }
+
+type TraceItem struct {
+	AcceptTime    string
+	AcceptStation string
+}

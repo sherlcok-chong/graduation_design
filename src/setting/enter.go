@@ -10,6 +10,7 @@ type group struct {
 	Oss       oss
 	Auto      auto
 	AliPay    alipay
+	Re        recommend
 }
 
 var Group = new(group)
@@ -24,4 +25,5 @@ func AllInit() {
 	Group.Oss.Init()
 	Group.Auto.Init()
 	Group.AliPay.Init()
+	Group.Re.Init()
 }

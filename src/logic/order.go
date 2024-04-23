@@ -7,6 +7,7 @@ import (
 	mid "GraduationDesign/src/middleware"
 	"GraduationDesign/src/model/reply"
 	"GraduationDesign/src/model/request"
+	"GraduationDesign/src/pkg/tool"
 	"github.com/0RAJA/Rutils/pkg/app/errcode"
 	"github.com/0RAJA/Rutils/pkg/times"
 	"github.com/gin-gonic/gin"
@@ -36,6 +37,8 @@ func (order) CreateOrder(c *gin.Context, req request.Order, orderID string) errc
 
 func (order) GetOrderList(c *gin.Context, userID int64) ([]reply.Order, errcode.Err) {
 	data, err := dao.Group.Mysql.GetUserLendOrder(c, userID)
+	d2, err := dao.Group.Mysql.GetUserBorrowOrder(c, userID)
+	data = append(data, d2...)
 	if err != nil {
 		global.Logger.Error(err.Error(), mid.ErrLogMsg(c)...)
 		return nil, errcode.ErrServer
@@ -117,4 +120,16 @@ func (order) ChangeOrderStatus(c *gin.Context, req *request.ChangeOrderStatus) e
 		return errcode.ErrServer
 	}
 	return nil
+}
+
+func (order) QueryExpress(c *gin.Context, orderID int64) ([]reply.TraceItem, errcode.Err) {
+	expressNum, err := dao.Group.Mysql.GetOrderExpressNum(c, orderID)
+	if err != nil {
+		return nil, errcode.ErrServer
+	}
+	data, err := tool.KdnTraces(tool.SHIP_CODE_YUNDA, expressNum)
+	if err != nil {
+		return nil, errcode.ErrServer
+	}
+	return data.Traces, nil
 }
